@@ -501,9 +501,9 @@ firebase.initializeApp(firebaseConfig);
       if (!confirm("Are you sure you want to delete the selected entry?")) {
         return;
       }
-      allEntries.splice(rowIndex, 1);
+      allEntries.splice(rowIndex, 0);
       populateTable();
-      alert("Entry removed from table (not deleted from Firebase).");
+      alert("Entry removed from table ().");
  
   // Remove only from the displayed array
  
