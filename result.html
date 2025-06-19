@@ -407,58 +407,89 @@ firebase.initializeApp(firebaseConfig);
       }
     }
 
-  function exportPDF() {
+function exportPDF() {
   const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
+  const doc = new jsPDF({
+    orientation: 'landscape' // Use landscape for better table fit
+  });
 
-  // Centered Title
+  // Title with better styling
+  doc.setFontSize(18);
+  doc.setFont('helvetica', 'bold');
   const title = "Bilos GPS Events";
-  doc.setFontSize(16);
   const pageWidth = doc.internal.pageSize.getWidth();
-  const textWidth = doc.getTextWidth(title);
-  const x = (pageWidth - textWidth) / 2;
-  doc.text(title, x, 18);
+  doc.text(title, pageWidth / 2, 15, { align: 'center' });
 
-  doc.setFontSize(12);
-  doc.text(" ", 10, 20);
-
-  if (!allEntries.length) {
-    doc.text("No data submitted yet.", 10, 30);
+  if (!allEntries || !allEntries.length) {
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'normal');
+    doc.text("No data submitted yet.", 20, 30);
   } else {
-    const head = [[
-      "Driver Name",
-      "Plate Number",
-      "Starting Point",
-      "Destination",
-      "Date",
-      "Stopping Time",
-      "Stopping Place",
-      "Moved Unauthorised Place (if any)",
-      "Other GPS Problem",
-      "Technical Problem"
-    ]];
-    const body = allEntries.map(entry => [
-      entry.driver || "-",
-      entry.plate || "-",
-      entry.startingPoint || "-",
-      entry.destination || "-",
-      entry.date || "-",
-      entry.stoppingTime || "-",
-      entry.stoppingPlace || "-",
-      entry.unauthorised || "-",
-      entry.gpsProblem || "-",
-      entry.techProblem || "-"
-    ]);
+    // Column headers
+    const headers = [
+      { header: 'Driver Name', dataKey: 'driver' },
+      { header: 'Plate Number', dataKey: 'plate' },
+      { header: 'Starting Point', dataKey: 'startingPoint' },
+      { header: 'Destination', dataKey: 'destination' },
+      { header: 'Date', dataKey: 'date' },
+      { header: 'Stopping Time', dataKey: 'stoppingTime' },
+      { header: 'Stopping Place', dataKey: 'stoppingPlace' },
+      { header: 'Unauthorized Place', dataKey: 'unauthorised' },
+      { header: 'GPS Issues', dataKey: 'gpsProblem' },
+      { header: 'Tech Issues', dataKey: 'techProblem' }
+    ];
+
+    // Process data
+    const body = allEntries.map(entry => ({
+      driver: entry.driver || '-',
+      plate: entry.plate || '-',
+      startingPoint: entry.startingPoint || '-',
+      destination: entry.destination || '-',
+      date: entry.date || '-',
+      stoppingTime: entry.stoppingTime || '-',
+      stoppingPlace: entry.stoppingPlace || '-',
+      unauthorised: entry.unauthorised || '-',
+      gpsProblem: entry.gpsProblem || '-',
+      techProblem: entry.techProblem || '-'
+    }));
+
+    // Generate table with improved settings
     doc.autoTable({
       startY: 25,
-      head: head,
+      head: [headers.map(h => h.header)],
       body: body,
-      styles: { fontSize: 10 },
-      headStyles: { fillColor: [30, 97, 207] }
+      columns: headers,
+      styles: { 
+        fontSize: 9,
+        cellPadding: 3,
+        overflow: 'linebreak',
+        halign: 'center'
+      },
+      headerStyles: {
+        fillColor: [30, 97, 207],
+        textColor: 255,
+        fontStyle: 'bold',
+        halign: 'center'
+      },
+      columnStyles: {
+        driver: { cellWidth: 'auto' },
+        plate: { cellWidth: 20 },
+        stoppingPlace: { cellWidth: 40 },
+        unauthorised: { cellWidth: 30 },
+        gpsProblem: { cellWidth: 20 },
+        techProblem: { cellWidth: 20 }
+      },
+      margin: { top: 20 },
+      pageBreak: 'auto',
+      tableWidth: 'wrap'
     });
   }
-  doc.save('gps_information.pdf');
+
+  // Save PDF with timestamp
+  const timestamp = new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-');
+  doc.save(`gps-report_${timestamp}.pdf`);
 }
+ 
     function editSelectedRow() {
       if (lastSelectedRowIndex == null || lastSelectedId == null) {
         alert("Please select a row to edit.");
