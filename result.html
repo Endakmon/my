@@ -410,78 +410,95 @@ firebase.initializeApp(firebaseConfig);
 function exportPDF() {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({
-    orientation: 'landscape' // Use landscape for better table fit
+    orientation: 'landscape' // Keep landscape for wide tables
   });
 
-  // Title with better styling
+  // Title styling
   doc.setFontSize(18);
   doc.setFont('helvetica', 'bold');
   const title = "Bilos GPS Events";
-  const pageWidth = doc.internal.pageSize.getWidth();
-  doc.text(title, pageWidth / 2, 15, { align: 'center' });
+  doc.text(title, doc.internal.pageSize.getWidth() / 2, 15, { align: 'center' });
 
   if (!allEntries || !allEntries.length) {
     doc.setFontSize(12);
     doc.setFont('helvetica', 'normal');
     doc.text("No data submitted yet.", 20, 30);
   } else {
-    // Column headers
+    // Column headers with optimized widths
     const headers = [
-      { header: 'Driver Name', dataKey: 'driver' },
-      { header: 'Plate Number', dataKey: 'plate' },
-      { header: 'Starting Point', dataKey: 'startingPoint' },
-      { header: 'Destination', dataKey: 'destination' },
-      { header: 'Date', dataKey: 'date' },
-      { header: 'Stopping Time', dataKey: 'stoppingTime' },
-      { header: 'Stopping Place', dataKey: 'stoppingPlace' },
-      { header: 'Unauthorized Place', dataKey: 'unauthorised' },
-      { header: 'GPS Issues', dataKey: 'gpsProblem' },
-      { header: 'Tech Issues', dataKey: 'techProblem' }
+      { header: 'Driver', dataKey: 'driver', cellWidth: 25 },
+      { header: 'Plate No', dataKey: 'plate', cellWidth: 20 },
+      { header: 'Start Point', dataKey: 'startingPoint', cellWidth: 30 },
+      { header: 'Destination', dataKey: 'destination', cellWidth: 30 },
+      { header: 'Date', dataKey: 'date', cellWidth: 20 },
+      { header: 'Stop Time', dataKey: 'stoppingTime', cellWidth: 20 },
+      { header: 'Stop Place', dataKey: 'stoppingPlace', cellWidth: 40 },
+      { header: 'Unauthorized', dataKey: 'unauthorised', cellWidth: 25 },
+      { header: 'GPS Issues', dataKey: 'gpsProblem', cellWidth: 25 },
+      { header: 'Tech Issues', dataKey: 'techProblem', cellWidth: 25 }
     ];
 
     // Process data
     const body = allEntries.map(entry => ({
       driver: entry.driver || '-',
       plate: entry.plate || '-',
-      startingPoint: entry.startingPoint || '-',
-      destination: entry.destination || '-',
+      startingPoint: entry.startingPoint?.substring(0, 20) + (entry.startingPoint?.length > 20 ? '...' : '') || '-',
+      destination: entry.destination?.substring(0, 20) + (entry.destination?.length > 20 ? '...' : '') || '-',
       date: entry.date || '-',
       stoppingTime: entry.stoppingTime || '-',
-      stoppingPlace: entry.stoppingPlace || '-',
+      stoppingPlace: entry.stoppingPlace?.includes('maps.google.com') ? 
+                   'Map Link' : 
+                   (entry.stoppingPlace?.substring(0, 20) + (entry.stoppingPlace?.length > 20 ? '...' : '') || '-'),
       unauthorised: entry.unauthorised || '-',
       gpsProblem: entry.gpsProblem || '-',
       techProblem: entry.techProblem || '-'
     }));
 
-    // Generate table with improved settings
+    // Generate table
     doc.autoTable({
       startY: 25,
       head: [headers.map(h => h.header)],
       body: body,
       columns: headers,
       styles: { 
-        fontSize: 9,
-        cellPadding: 3,
+        fontSize: 10,  // Increased from 9 to 10
+        cellPadding: 4, // Increased padding
         overflow: 'linebreak',
-        halign: 'center'
+        halign: 'center',
+        valign: 'middle',  // Vertical alignment
+        minCellHeight: 10  // Minimum row height
       },
       headerStyles: {
         fillColor: [30, 97, 207],
         textColor: 255,
         fontStyle: 'bold',
-        halign: 'center'
+        halign: 'center',
+        cellPadding: 5
       },
-      columnStyles: {
-        driver: { cellWidth: 'auto' },
-        plate: { cellWidth: 20 },
-        stoppingPlace: { cellWidth: 40 },
-        unauthorised: { cellWidth: 30 },
-        gpsProblem: { cellWidth: 20 },
-        techProblem: { cellWidth: 20 }
+      bodyStyles: {
+        cellPadding: 4,
+        minCellHeight: 12  // Increased minimum row height
       },
       margin: { top: 20 },
-      pageBreak: 'auto',
-      tableWidth: 'wrap'
+      tableWidth: 'auto',
+      showHead: 'everyPage'
+    });
+
+    // Add clickable links for map locations (where applicable)
+    allEntries.forEach((entry, rowIndex) => {
+      if (entry.stoppingPlace?.includes('maps.google.com')) {
+        const pageCount = doc.internal.getNumberOfPages();
+        for (let p = 1; p <= pageCount; p++) {
+          doc.setPage(p);
+          const table = doc.lastAutoTable;
+          if (table && rowIndex >= table.startingRowIndex && rowIndex <= table.endingRowIndex) {
+            const cell = table.cells.find(c => c.row.index === rowIndex && c.column.dataKey === 'stoppingPlace');
+            if (cell) {
+              doc.link(cell.x, cell.y, cell.width, cell.height, { url: entry.stoppingPlace });
+            }
+          }
+        }
+      }
     });
   }
 
@@ -489,7 +506,8 @@ function exportPDF() {
   const timestamp = new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-');
   doc.save(`gps-report_${timestamp}.pdf`);
 }
- 
+
+
     function editSelectedRow() {
       if (lastSelectedRowIndex == null || lastSelectedId == null) {
         alert("Please select a row to edit.");
