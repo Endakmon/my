@@ -420,10 +420,10 @@ firebase.initializeApp(firebaseConfig);
   doc.text(title, x, 18);
 
   doc.setFontSize(12);
-  doc.text(" ", 14, 27);
+  doc.text(" ", 10, 20);
 
   if (!allEntries.length) {
-    doc.text("No data submitted yet.", 14, 40);
+    doc.text("No data submitted yet.", 10, 30);
   } else {
     const head = [[
       "Driver Name",
@@ -501,7 +501,7 @@ firebase.initializeApp(firebaseConfig);
       if (!confirm("Are you sure you want to delete the selected entry?")) {
         return;
       }
-      allEntries.splice(rowIndex, 0);
+      allEntries.splice(rowIndex, 1);
       populateTable();
       alert("Entry removed from table ().");
  
