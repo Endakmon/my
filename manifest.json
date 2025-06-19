@@ -1,0 +1,20 @@
+{
+  "name": "Bilos Car ",
+  "short_name": "Bilos GPS",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#E7653F",
+  "theme_color": "#ffbe59",
+  "icons": [
+    {
+      "src": "icons/bilos-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/bilos-512.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ]
+}
