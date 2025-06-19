@@ -446,8 +446,8 @@ function exportPDF() {
       destination: entry.destination?.substring(0, 20) + (entry.destination?.length > 20 ? '...' : '') || '-',
       date: entry.date || '-',
       stoppingTime: entry.stoppingTime || '-',
-      stoppingPlace: entry.stoppingPlace?.includes('maps.google.com') ? 
-                   'Map Link' : 
+      stoppingPlace: entry.stoppingPlace?.includes('') ? 
+
                    (entry.stoppingPlace?.substring(0, 20) + (entry.stoppingPlace?.length > 20 ? '...' : '') || '-'),
       unauthorised: entry.unauthorised || '-',
       gpsProblem: entry.gpsProblem || '-',
@@ -550,7 +550,7 @@ function exportPDF() {
       if (!confirm("Are you sure you want to delete the selected entry?")) {
         return;
       }
-      allEntries.splice(rowIndex, 1);
+      allEntries.splice(rowIndex, 2);
       populateTable();
       alert("Entry removed from table ().");
  
