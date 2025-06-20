@@ -190,72 +190,85 @@
     }
 
     function exportPDF() {
-      const { jsPDF } = window.jspdf;
-      const doc = new jsPDF({
-        orientation: "landscape",
-        unit: "mm",
-        format: "a4"
-      });
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({
+    orientation: "landscape",
+    unit: "mm",
+    format: "a4"
+  });
 
-      doc.setFontSize(20);
-      doc.text("Bilos GPS & Technical Events", 14, 18);
-      doc.setFontSize(11);
+  doc.setFontSize(20);
+  doc.text("Bilos GPS Events", 14, 18);
+  doc.setFontSize(11);
 
-      if (!allEntries.length) {
-        doc.text("No data submitted yet.", 14, 30);
-      } else {
-        const head = [[
-          "Driver Name",
-          "Plate Number",
-          "Starting Point",
-          "Destination",
-          "Date",
-          "Moved Time",
-          "Stopping Time",
-          "Stopping Place",
-          "Moved Unauthorised Place",
-          "Other GPS Problem",
-          "Technical Problem"
-        ]];
+  if (!allEntries.length) {
+    doc.text("No data submitted yet.", 14, 30);
+  } else {
+    const head = [[
+      "Driver",
+      "Plate",
+      "Start Point",
+      "Destination",
+      "Date",
+      "Moved Time",
+      "Stop Time",
+      "Stop Place",
+      "Unauthorized",
+      "GPS Issues",
+      "Tech Issues"
+    ]];
 
-        const body = allEntries.map(entry => [
-          entry.driver || "-",
-          entry.plate || "-",
-          entry.startingPoint || "-",
-          entry.destination || "-",
-          entry.date || "-",
-          entry.movedTime || "-",
-          entry.stoppingTime || "-",
-          entry.stoppingPlace || "-",
-          entry.unauthorised || "-",
-          entry.gpsProblem || "-",
-          entry.techProblem || "-"
-        ]);
+    const body = allEntries.map(entry => [
+      entry.driver || "-",
+      entry.plate || "-",
+      entry.startingPoint || "-",
+      entry.destination || "-",
+      entry.date || "-",
+      entry.movedTime || "-",
+      entry.stoppingTime || "-",
+      entry.stoppingPlace || "-",
+      entry.unauthorised || "-",
+      entry.gpsProblem || "-",
+      entry.techProblem || "-"
+    ]);
 
-        doc.autoTable({
-          startY: 30,
-          head: head,
-          body: body,
-          styles: {
-            fontSize: 9,
-            cellWidth: 'wrap',
-            overflow: 'linebreak'
-          },
-          columnStyles: {
-            8: { cellWidth: 40 },
-            10: { cellWidth: 40 }
-          },
-          headStyles: {
-            fillColor: [35, 102, 209],
-            textColor: 255,
-            fontSize: 9
-          },
-          margin: { left: 14, right: 14 }
-        });
-      }
+    doc.autoTable({
+      startY: 30,
+      head: head,
+      body: body,
+      styles: {
+        fontSize: 9,
+        overflow: 'hidden',       // Prevents line wrapping
+        cellWidth: 'auto',
+        halign: 'center',
+        valign: 'middle'
+      },
+      columnStyles: {
+        0: { cellWidth: 25 },
+        1: { cellWidth: 20 },
+        2: { cellWidth: 25 },
+        3: { cellWidth: 25 },
+        4: { cellWidth: 22 },
+        5: { cellWidth: 30 },
+        6: { cellWidth: 20 },
+        7: { cellWidth: 25 },
+        8: { cellWidth: 30 },
+        9: { cellWidth: 25 },
+        10: { cellWidth: 25 }
+      },
+      headStyles: {
+        fillColor: [35, 102, 209],
+        textColor: 255,
+        fontSize: 9,
+        halign: 'center'
+      },
+      margin: { left: 14, right: 14 }
+    });
+  }
 
-      doc.save('gps_information.pdf');
-    }
+  doc.save('gps_information.pdf');
+}
+
 
     function editSelectedRow() {
       if (lastSelectedRowIndex == null || lastSelectedId == null) {
