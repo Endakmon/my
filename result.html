@@ -444,8 +444,8 @@ function exportPDF() {
     const body = allEntries.map(entry => ({
       driver: entry.driver || '-',
       plate: entry.plate || '-',
-      startingPoint: entry.startingPoint?.substring(0, 20) + (entry.startingPoint?.length > 20 ? '...' : '') || '-',
-      destination: entry.destination?.substring(0, 20) + (entry.destination?.length > 20 ? '...' : '') || '-',
+      startingPoint: entry.startingPoint?.substring(0, 20) + (entry.startingPoint?.length > 25 ? '...' : '') || '-',
+      destination: entry.destination?.substring(0, 20) + (entry.destination?.length > 25 ? '...' : '') || '-',
       date: entry.date || '-',
       movedTime: entry.movedTime || '-',
       stoppingTime: entry.stoppingTime || '-',
@@ -470,7 +470,7 @@ function exportPDF() {
         minCellHeight: 10  // Minimum row height
       },
       headerStyles: {
-        fillColor: [30, 97, 207],
+        fillColor: [25, 92, 202],
         textColor: 255,
         fontStyle: 'bold',
         halign: 'center',
