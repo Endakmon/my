@@ -411,7 +411,7 @@ firebase.initializeApp(firebaseConfig);
 function exportPDF() {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({
-    orientation: 'landscape' // Keep landscape for wide tables
+    orientation: 'landscape'
   });
 
   // Title styling
@@ -420,56 +420,48 @@ function exportPDF() {
   const title = "Bilos GPS Events";
   doc.text(title, doc.internal.pageSize.getWidth() / 2, 15, { align: 'center' });
 
+  let y = 25;
+
   if (!allEntries || !allEntries.length) {
     doc.setFontSize(12);
     doc.setFont('helvetica', 'normal');
-    doc.text("No data submitted yet.", 20, 30);
+    doc.text("No data submitted yet.", 20, y);
   } else {
-    // Column headers with optimized widths
+    // Column headers
     const headers = [
-      { header: 'Driver', dataKey: 'driver', cellWidth: 25 },
-      { header: 'Plate No', dataKey: 'plate', cellWidth: 20 },
-      { header: 'Start Point', dataKey: 'startingPoint', cellWidth: 30 },
-      { header: 'Destination', dataKey: 'destination', cellWidth: 30 },
-      { header: 'Date', dataKey: 'date', cellWidth: 20 },
-      { header: 'Moved Time', dataKey: 'movedTime', cellWidth: 20 },
-      { header: 'Stopping Time', dataKey: 'stoppingTime', cellWidth: 20 },
-      { header: 'Stopping Place', dataKey: 'stoppingPlace', cellWidth: 40 },
-      { header: 'moved Unauthorized', dataKey: 'unauthorised', cellWidth: 25 },
-      { header: 'other GPS problem', dataKey: 'gpsProblem', cellWidth: 25 },
-      { header: 'other technical problem', dataKey: 'techProblem', cellWidth: 25 }
+      'Driver', 'Plate No', 'Start Point', 'Destination', 'Date', 'Moved Time', 'Stopping Time',
+      'Stopping Place', 'moved Unauthorized', 'other GPS problem', 'other technical problem'
     ];
 
-    // Process data
-    const body = allEntries.map(entry => ({
-      driver: entry.driver || '-',
-      plate: entry.plate || '-',
-      startingPoint: entry.startingPoint?.substring(0, 20) + (entry.startingPoint?.length > 25 ? '...' : '') || '-',
-      destination: entry.destination?.substring(0, 20) + (entry.destination?.length > 25 ? '...' : '') || '-',
-      date: entry.date || '-',
-      movedTime: entry.movedTime || '-',
-      stoppingTime: entry.stoppingTime || '-',
-      stoppingPlace: entry.stoppingPlace ||'-',
-      unauthorised: entry.unauthorised || '-',
-      gpsProblem: entry.gpsProblem || '-',
-      techProblem: entry.techProblem || '-'
-    }));
+    // Prepare body with raw text, but keep map fields separately for clickable links
+    const body = allEntries.map(entry => [
+      entry.driver || '-',
+      entry.plate || '-',
+      entry.startingPoint?.substring(0, 20) + (entry.startingPoint?.length > 25 ? '...' : '') || '-',
+      entry.destination?.substring(0, 20) + (entry.destination?.length > 25 ? '...' : '') || '-',
+      entry.date || '-',
+      entry.movedTime || '-',
+      entry.stoppingTime || '-',
+      entry.stoppingPlace || '-',
+      entry.unauthorised || '-',
+      entry.gpsProblem || '-',
+      entry.techProblem || '-'
+    ]);
 
     // Generate table
     doc.autoTable({
-      startY: 25,
-      head: [headers.map(h => h.header)],
+      startY: y,
+      head: [headers],
       body: body,
-      columns: headers,
-      styles: { 
-        fontSize: 10,  // Increased from 9 to 10
-        cellPadding: 4, // Increased padding
+      styles: {
+        fontSize: 10,
+        cellPadding: 4,
         overflow: 'linebreak',
         halign: 'center',
-        valign: 'middle',  // Vertical alignment
-        minCellHeight: 10  // Minimum row height
+        valign: 'middle',
+        minCellHeight: 10
       },
-      headerStyles: {
+      headStyles: {
         fillColor: [25, 92, 202],
         textColor: 255,
         fontStyle: 'bold',
@@ -478,22 +470,67 @@ function exportPDF() {
       },
       bodyStyles: {
         cellPadding: 4,
-        minCellHeight: 12  // Increased minimum row height
+        minCellHeight: 12
       },
-      margin: { top: 20 },
+      margin: { top: y - 5 },
       tableWidth: 'auto',
-      showHead: 'everyPage'
+      showHead: 'everyPage',
+      didDrawCell: function (data) {
+        // Only make Stopping Place and Unauthorized Place clickable
+        if (data.section === 'body' && allEntries[data.row.index]) {
+          const entry = allEntries[data.row.index];
+          // Stopping Place
+          if (data.column.index === 7 && entry.stoppingPlace && entry.stoppingPlace !== '-') {
+            const place = entry.stoppingPlace;
+            let url = '';
+            const coordRegex = /^\s*-?\d+(\.\d+)?\s*,\s*-?\d+(\.\d+)?\s*$/;
+            if (coordRegex.test(place)) {
+              url = `https://www.google.com/maps/search/?api=1&query=${place}`;
+            } else {
+              url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(place)}`;
+            }
+            // Add clickable link
+            doc.link(
+              data.cell.x, data.cell.y,
+              data.cell.width, data.cell.height,
+              { url: url }
+            );
+          }
+          // Unauthorized Place
+          if (data.column.index === 8 && entry.unauthorised && entry.unauthorised !== '-') {
+            const place = entry.unauthorised;
+            let url = '';
+            const coordRegex = /^\s*-?\d+(\.\d+)?\s*,\s*-?\d+(\.\d+)?\s*$/;
+            if (coordRegex.test(place)) {
+              url = `https://www.google.com/maps/search/?api=1&query=${place}`;
+            } else {
+              url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(place)}`;
+            }
+            doc.link(
+              data.cell.x, data.cell.y,
+              data.cell.width, data.cell.height,
+              { url: url }
+            );
+          }
+        }
+      }
     });
 
-    // Add clickable links for map locations (where applicable)
-   
+    y = doc.lastAutoTable.finalY + 10;
   }
+
+  // Add clickable web link at the end
+  doc.setFontSize(13);
+  doc.setTextColor(8, 69, 160);
+  const linkText = "View Online: https://endex-git-main-endakmons-projects.vercel.app/result.html";
+  doc.textWithLink(linkText, 20, y + 10, {
+    url: "https://endex-git-main-endakmons-projects.vercel.app/result.html"
+  });
 
   // Save PDF with timestamp
   const timestamp = new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-');
   doc.save(`gps-report_${timestamp}.pdf`);
 }
-
 
     function editSelectedRow() {
       if (lastSelectedRowIndex == null || lastSelectedId == null) {
@@ -529,22 +566,25 @@ function exportPDF() {
       });
     }
 
-    function deleteSelectedRow(rowIndex) {
-      const code = prompt("Enter admin code to delete this entry:");
-      if (!code || code.trim() !== "6121") {
-        alert("Wrong code. Deletion cancelled.");
-        return;
-      }
-     if (!confirm("Are you sure you want to delete the selected entry?")) {
+function deleteSelectedRow() {
+  if (lastSelectedRowIndex == null || lastSelectedId == null) {
+    alert("Please select a row to delete.");
     return;
-}
-// Remove just the one entry at rowIndex
-allEntries.splice(rowIndex, 1);
-populateTable();
-alert("Entry removed from table.");
- 
-  // Remove only from the displayed array
- 
+  }
+  const code = prompt("Enter admin code to delete this entry:");
+  if (!code || code.trim() !== "6121") {
+    alert("Wrong code. Deletion cancelled.");
+    return;
+  }
+  if (!confirm("Are you sure you want to delete the selected entry?")) {
+    return;
+  }
+  db.collection("gpsEntries").doc(lastSelectedId).delete().then(() => {
+    lastSelectedRow = null;
+    lastSelectedRowIndex = null;
+    lastSelectedId = null;
+    alert("Entry deleted.");
+  });
 }
     // --- MAIN DATA LOADING LOGIC (robust, with error handling) ---
     function subscribeToEntries() {
