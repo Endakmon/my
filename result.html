@@ -486,21 +486,7 @@ function exportPDF() {
     });
 
     // Add clickable links for map locations (where applicable)
-    allEntries.forEach((entry, rowIndex) => {
-      if (entry.stoppingPlace ('maps.google.com')) {
-        const pageCount = doc.internal.getNumberOfPages();
-        for (let p = 1; p <= pageCount; p++) {
-          doc.setPage(p);
-          const table = doc.lastAutoTable;
-          if (table && rowIndex >= table.startingRowIndex && rowIndex <= table.endingRowIndex) {
-            const cell = table.cells.find(c => c.row.index === rowIndex && c.column.dataKey === 'stoppingPlace');
-            if (cell) {
-              doc.link(cell.x, cell.y, cell.width, cell.height, { url: entry.stoppingPlace });
-            }
-          }
-        }
-      }
-    });
+   
   }
 
   // Save PDF with timestamp
