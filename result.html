@@ -343,53 +343,71 @@
       });
     }
 
-    function exportPDF() {
-      const { jsPDF } = window.jspdf;
-      const doc = new jsPDF();
-      doc.setFontSize(20);
-      doc.text("Bilos GPS Events", 14, 18);
-      doc.setFontSize(11);
-      doc.text(" ", 14, 27);
+  function exportPDF() {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({
+    orientation: 'landscape',
+    unit: 'pt',
+    format: 'a4'
+  });
 
-      if (!allEntries.length) {
-        doc.text("No data submitted yet.", 14, 40);
-      } else {
-        const head = [[
-          "Driver Name",
-          "Plate Number",
-          "Starting Point",
-          "Destination",
-          "Date",
-          "Moved Time",
-          "Stopping Time",
-          "Stopping Place",
-          "Moved Unauthorised Place (if any)",
-          "Other GPS Problem",
-          "Technical Problem"
-        ]];
-        const body = allEntries.map(entry => [
-          entry.driver || "-",
-          entry.plate || "-",
-          entry.startingPoint || "-",
-          entry.destination || "-",
-          entry.date || "-",
-          entry.movedTime || "-",
-          entry.stoppingTime || "-",
-          entry.stoppingPlace || "-",
-          entry.unauthorised || "-",
-          entry.gpsProblem || "-",
-          entry.techProblem || "-"
-        ]);
-        doc.autoTable({
-          startY: 10,
-          head: head,
-          body: body,
-          styles: { fontSize: 15},
-          headStyles: { fillColor: [45, 117, 220] }
-        });
-      }
-      doc.save('gps_information.pdf');
-    }
+  // Title
+  doc.setFontSize(28);
+  doc.setFont("helvetica", "bold");
+  doc.text("Bilos GPS Events", doc.internal.pageSize.getWidth() / 2, 70, { align: "center" });
+
+  // Table headers and body
+  const head = [[
+    "Driver",
+    "Plate",
+    "Start Point",
+    "Destination",
+    "Date",
+    "Moved Time",
+    "Stop Time",
+    "Stop Place",
+    "Unauthorized",
+    "GPS Issues",
+    "Tech Issues"
+  ]];
+
+  const body = allEntries.map(entry => [
+    entry.driver || "-",
+    entry.plate || "-",
+    entry.startingPoint || "-",
+    entry.destination || "-",
+    entry.date || "-",
+    entry.movedTime || "-",
+    entry.stoppingTime || "-",
+    entry.stoppingPlace || "-",
+    entry.unauthorised || "-",
+    entry.gpsProblem || "-",
+    entry.techProblem || "-"
+  ]);
+
+  doc.autoTable({
+    startY: 100,
+    head: head,
+    body: body,
+    theme: 'grid',
+    styles: {
+      halign: 'center',
+      fontSize: 12,
+      cellPadding: 8
+    },
+    headStyles: {
+      fillColor: [23, 98, 199], // #1762c7
+      textColor: 255,
+      fontStyle: 'bold'
+    },
+    alternateRowStyles: {
+      fillColor: [245, 245, 245] // subtle gray
+    },
+    margin: { left: 50, right: 50 }
+  });
+
+  doc.save('gps_event information.pdf');
+}
 
     function editSelectedRow() {
       if (lastSelectedRowIndex == null || lastSelectedId == null) {
