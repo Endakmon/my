@@ -343,34 +343,32 @@
       });
     }
 
- function exportPDF() {
+function exportPDF() {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({
-    orientation: 'landscape',  // Changed to landscape to fit all columns
-    unit: 'pt',
-    format: 'a4'
+    orientation: "landscape", // Makes more room horizontally
+    unit: "mm",
+    format: "a4"
   });
 
-  // Title
   doc.setFontSize(20);
-  doc.setFont("helvetica", "bold");
-  doc.text("Bilos GPS & Technical Events", doc.internal.pageSize.getWidth() / 2, 30, { align: "center" });
+  doc.text("Bilos GPS & Technical Events", 14, 18);
+  doc.setFontSize(11);
 
   if (!allEntries.length) {
-    doc.setFontSize(12);
-    doc.text("No data submitted yet.", doc.internal.pageSize.getWidth() / 2, 60, { align: "center" });
+    doc.text("No data submitted yet.", 14, 30);
   } else {
     const head = [[
-      "Driver",
-      "Plate",
-      "Start Point",
+      "Driver Name",
+      "Plate Number",
+      "Starting Point",
       "Destination",
       "Date",
-      "Stop Time",
-      "Stop Place",
-      "Unauthorized",
-      "GPS Issues",
-      "Tech Issues"
+      "Stopping Time",
+      "Stopping Place",
+      "Moved Unauthorised Place (if any)",
+      "Other GPS Problem",
+      "Technical Problem"
     ]];
 
     const body = allEntries.map(entry => [
@@ -387,34 +385,18 @@
     ]);
 
     doc.autoTable({
-      startY: 60,
+      startY: 30,
       head: head,
       body: body,
-      margin: { left: 10, right: 10 },
       styles: {
-        fontSize: 8,  // Smaller font size to fit everything
-        cellPadding: 3,
-        overflow: 'linebreak',
-        halign: 'left'
+        fontSize: 10,
+        cellWidth: 'wrap'
       },
       headStyles: {
         fillColor: [35, 102, 209],
-        textColor: [255, 255, 255],
-        fontStyle: 'bold',
-        fontSize: 9
+        textColor: 255
       },
-      columnStyles: {
-        0: { cellWidth: 60 },  // Driver
-        1: { cellWidth: 40 },  // Plate
-        2: { cellWidth: 60 },  // Start Point
-        3: { cellWidth: 60 },  // Destination
-        4: { cellWidth: 40 },  // Date
-        5: { cellWidth: 40 },  // Stop Time
-        6: { cellWidth: 60 },  // Stop Place
-        7: { cellWidth: 50 },  // Unauthorized
-        8: { cellWidth: 40 },  // GPS Issues
-        9: { cellWidth: 40 }   // Tech Issues
-      }
+      margin: { left: 14, right: 14 }
     });
   }
 
