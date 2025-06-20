@@ -10,34 +10,66 @@
       min-height: 10vh;
       background:#233981;
     }
-    .container { max-width: 1500px; margin: 0px auto; background: #DA654390; border-radius: 0px; padding: 32px 36px; box-shadow: 0 2px 8px #ececec; position: relative; }
-    table { border-collapse:collapse; width: 100%; margin-top: 9px; }
-    th, td { border: 1px solid #ccc; padding: 9px 8px; text-align: left; font-size: 15px; }
-    th { background: #2369d1; color: #fff; }
-    .actions { margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 10px;}
-    button { padding: 9px 20px; font-size: 15px; border-radius: 4px; border: none; background: #2369d1; color: white; cursor: pointer; }
-    button[type="button"] { background: #6c757d; }
+    .container {
+      max-width: 1400px;
+      margin: 30px auto;
+      background: #fff;
+      border-radius: 10px;
+      padding: 40px 36px;
+      box-shadow: 0 2px 8px #ececec;
+      position: relative;
+    }
+    .table-responsive {
+      width: 100%;
+      overflow-x: auto;
+      background: #fff;
+      border-radius: 8px;
+      margin: 0 auto 20px auto;
+      box-shadow: 0 2px 8px #ececec;
+    }
+    .gps-table {
+      border-collapse: collapse;
+      width: 100%;
+      min-width: 1200px;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #fafaff;
+    }
+    .gps-table thead tr {
+      background: #2369d1;
+      color: #fff;
+      text-align: center;
+      font-weight: bold;
+    }
+    .gps-table th, .gps-table td {
+      padding: 12px 10px;
+      border: 1px solid #e1e4ea;
+      font-size: 15px;
+      text-align: center;
+      vertical-align: middle;
+      white-space: nowrap;
+    }
+    .gps-table th {
+      font-weight: bold;
+    }
+    .gps-table tbody tr:nth-child(even) {
+      background: #f4f8ff;
+    }
+    .actions {
+      margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 10px;
+    }
+    button {
+      padding: 9px 20px; font-size: 15px; border-radius: 4px; border: none;
+      background: #2369d1; color: white; cursor: pointer;
+    }
     button:hover { opacity: 0.92; }
     .see-more-btn {
-      background: #ffbe42;
-      color: #222;
-      font-size: 15px;
-      margin-left: 0;
-      padding: 9px 20px;
-      border-radius: 4px;
-      border: none;
-      cursor: pointer;
-      transition: background 0.2s;
+      background: #ffbe42; color: #222;
+      font-size: 15px; margin-left: 0; padding: 9px 20px; border-radius: 4px; border: none; cursor: pointer; transition: background 0.2s;
     }
-    .see-more-btn:hover {
-      background: #ffd262;
-    }
-    @media (max-width: 700px) {
+    .see-more-btn:hover { background: #ffd262; }
+    @media (max-width: 1100px) {
       .container { padding: 12px 3px; }
-      th, td { font-size: 13px; padding: 6px 2px; }
-      .actions { flex-direction: column; }
-      .logo-section img { width: 95px; }
-      .menu-btn { top: 12px; right: 12px; }
+      .gps-table th, .gps-table td { font-size: 13px; padding: 8px 4px; }
     }
     h2{
       text-align:center;
@@ -236,7 +268,6 @@
       messagingSenderId: "586655593314",
       appId: "1:586655593314:web:60f21bf38c33e0f960f23b"
     };
-    // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
     let lastSelectedRow = null;
@@ -260,7 +291,6 @@
       document.getElementById('errorMsg').style.display = 'none';
     }
 
-    // --- Menu button logic ---
     document.addEventListener('DOMContentLoaded', function() {
       const menuBtn = document.getElementById('moreMenuBtn');
       const menuPopup = document.getElementById('menuPopup');
@@ -273,7 +303,6 @@
         }
       });
 
-      // --- Admin code logic ---
       document.getElementById('clearInput').addEventListener('keyup', function(e) {
         if (this.value === '6121') {
           document.getElementById('adminClear').style.display = 'inline-block';
@@ -282,7 +311,6 @@
         }
       });
 
-      // --- Subscribe to Entries ---
       subscribeToEntries();
     });
 
@@ -317,7 +345,6 @@
       const menuPopup = document.getElementById('menuPopup');
       allEntries.forEach((entry, idx) => {
         const formatField = val => val && val.trim() !== '' ? val : '-';
-        // No linkify; just plain text for map fields.
         const row = document.createElement('tr');
         row.innerHTML = `
           <td>${formatField(entry.driver)}</td>
@@ -394,7 +421,6 @@
     }
 
     function clearData() {
-      // Only remove data from the page, NOT from Firestore
       allEntries = [];
       populateTable();
       lastSelectedRow = null;
@@ -528,7 +554,6 @@
     }
 
     function deleteSelectedRow() {
-      // Only remove from the UI, not from Firestore
       if (lastSelectedRowIndex == null) {
         alert("Please select a row to delete.");
         return;
@@ -549,7 +574,6 @@
       alert("Entry removed from table. Reload the page to see it again.");
     }
 
-    // --- MAIN DATA LOADING LOGIC (robust, with error handling) ---
     function subscribeToEntries() {
       showLoading();
       hideError();
@@ -590,10 +614,8 @@
   </script>
 </head>
 <body>
-  <!-- Loading/Error messages -->
   <div id="loadingMsg" style="text-align:center; color:#444; margin-top:12px; display:none;">Loading data, please wait...</div>
   <div id="errorMsg" style="text-align:center; color:red; margin-top:12px; display:none;"></div>
-  <!-- Three dot menu button -->
   <button class="menu-btn" id="moreMenuBtn" title="More options" aria-label="More options">
     <span class="menu-dots">
       <span class="menu-dot"></span>
@@ -620,24 +642,26 @@
       <button onclick="exportPDF()">Export as PDF</button>
       <button class="see-more-btn" onclick="seeSelectedOnMap()">See More (Map)</button>
     </div>
-    <table>
-      <thead>
-        <tr>
-          <th>Driver Name</th>
-          <th>Plate Number</th>
-          <th>Starting Point</th>
-          <th>Destination</th>
-          <th>Date</th>
-          <th>Moved Time</th>
-          <th>Stopping Time</th>
-          <th>Stopping Place</th>
-          <th>Moved Unauthorised Place (if any)</th>
-          <th>Other GPS Problem</th>
-          <th>Technical Problem</th>
-        </tr>
-      </thead>
-      <tbody id="dataRows"></tbody>
-    </table>
+    <div class="table-responsive">
+      <table class="gps-table">
+        <thead>
+          <tr>
+            <th>Driver Name</th>
+            <th>Plate Number</th>
+            <th>Starting Point</th>
+            <th>Destination</th>
+            <th>Date</th>
+            <th>Moved Time</th>
+            <th>Stopping Time</th>
+            <th>Stopping Place</th>
+            <th>Moved Unauthorized</th>
+            <th>Other GPS Problem</th>
+            <th>Technical Problem</th>
+          </tr>
+        </thead>
+        <tbody id="dataRows"></tbody>
+      </table>
+    </div>
   </div>
   <div id="mapPopupOverlay" style="display:none"></div>
 </body>
