@@ -80,14 +80,14 @@
     tr { transition: background 0.2s;}
     #clearInput {
       padding: 6px 12px;
-      font-size: 15px;
+      font-size: 5px;
       border: 1px solid #bbb;
       border-radius: 4px;
       margin-right: 10px;
     }
     #adminClear {
       display: none;
-      font-size:10px
+      font-size:3px
     }
     .popup-overlay {
       position: fixed;
@@ -325,6 +325,7 @@ firebase.initializeApp(firebaseConfig);
           <td>${formatField(entry.startingPoint)}</td>
           <td>${formatField(entry.destination)}</td>
           <td>${formatField(entry.date)}</td>
+          <td>${formatField(entry.movedTime)}</td>
           <td>${formatField(entry.stoppingTime)}</td>
           <td>${formatField(entry.stoppingPlace)}</td>
           <td>${formatField(entry.unauthorised)}</td>
@@ -431,6 +432,7 @@ function exportPDF() {
       { header: 'Start Point', dataKey: 'startingPoint', cellWidth: 30 },
       { header: 'Destination', dataKey: 'destination', cellWidth: 30 },
       { header: 'Date', dataKey: 'date', cellWidth: 20 },
+      { header: 'Moved Time', dataKey: 'movedTime', cellWidth: 20 },
       { header: 'Stopping Time', dataKey: 'stoppingTime', cellWidth: 20 },
       { header: 'Stopping Place', dataKey: 'stoppingPlace', cellWidth: 40 },
       { header: 'moved Unauthorized', dataKey: 'unauthorised', cellWidth: 25 },
@@ -445,10 +447,9 @@ function exportPDF() {
       startingPoint: entry.startingPoint?.substring(0, 20) + (entry.startingPoint?.length > 20 ? '...' : '') || '-',
       destination: entry.destination?.substring(0, 20) + (entry.destination?.length > 20 ? '...' : '') || '-',
       date: entry.date || '-',
+      movedTime: entry.movedTime || '-',
       stoppingTime: entry.stoppingTime || '-',
-      stoppingPlace: entry.stoppingPlace?.includes('') ? 
-
-                   (entry.stoppingPlace?.substring(0, 20) + (entry.stoppingPlace?.length > 20 ? '...' : '') || '-'),
+      stoppingPlace: entry.stoppingPlace ||'-',
       unauthorised: entry.unauthorised || '-',
       gpsProblem: entry.gpsProblem || '-',
       techProblem: entry.techProblem || '-'
@@ -486,7 +487,7 @@ function exportPDF() {
 
     // Add clickable links for map locations (where applicable)
     allEntries.forEach((entry, rowIndex) => {
-      if (entry.stoppingPlace?.includes('maps.google.com')) {
+      if (entry.stoppingPlace ('maps.google.com')) {
         const pageCount = doc.internal.getNumberOfPages();
         for (let p = 1; p <= pageCount; p++) {
           doc.setPage(p);
@@ -520,6 +521,7 @@ function exportPDF() {
         { key: "startingPoint", label: "Starting Point" },
         { key: "destination", label: "Destination" },
         { key: "date", label: "Date" },
+        { key: "movedTime", label: "Moved Time" },
         { key: "stoppingTime", label: "Stopping Time" },
         { key: "stoppingPlace", label: "Stopping Place" },
         { key: "unauthorised", label: "Moved Unauthorised Place" },
@@ -625,7 +627,7 @@ function exportPDF() {
       <input id="clearInput" type="password" placeholder="Admin code">
       <button id="adminClear" onclick="clearData()">Clear All Data</button>
       <button onclick="exportPDF()">Export as PDF</button>
-      <button class="see-more-btn" onclick="seeSelectedOnMap()">See More (Selected)</button>
+      <button class="see-more-btn" onclick="seeSelectedOnMap()">See More (Map)</button>
     </div>
     <table>
       <thead>
@@ -635,6 +637,7 @@ function exportPDF() {
           <th>Starting Point</th>
           <th>Destination</th>
           <th>Date</th>
+          <th>Moved Time</th>
           <th>Stopping Time</th>
           <th>Stopping Place</th>
           <th>Moved Unauthorised Place (if any)</th>
