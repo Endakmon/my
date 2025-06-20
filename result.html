@@ -344,50 +344,82 @@
     }
 
  function exportPDF() {
-      const { jsPDF } = window.jspdf;
-      const doc = new jsPDF();
-      doc.setFontSize(20);
-      doc.text("Bilos GPS & Technical Events", 14, 18);
-      doc.setFontSize(11);
-      doc.text(" ", 14, 27);
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({
+    orientation: 'landscape',  // Changed to landscape to fit all columns
+    unit: 'pt',
+    format: 'a4'
+  });
 
-      if (!allEntries.length) {
-        doc.text("No data submitted yet.", 14, 40);
-      } else {
-        const head = [[
-          "Driver Name",
-          "Plate Number",
-          "Starting Point",
-          "Destination",
-          "Date",
-          "Stopping Time",
-          "Stopping Place",
-          "Moved Unauthorised Place (if any)",
-          "Other GPS Problem",
-          "Technical Problem"
-        ]];
-        const body = allEntries.map(entry => [
-          entry.driver || "-",
-          entry.plate || "-",
-          entry.startingPoint || "-",
-          entry.destination || "-",
-          entry.date || "-",
-          entry.stoppingTime || "-",
-          entry.stoppingPlace || "-",
-          entry.unauthorised || "-",
-          entry.gpsProblem || "-",
-          entry.techProblem || "-"
-        ]);
-        doc.autoTable({
-          startY: 40,
-          head: head,
-          body: body,
-          styles: { fontSize: 15},
-          headStyles: { fillColor: [35, 102, 209] }
-        });
+  // Title
+  doc.setFontSize(20);
+  doc.setFont("helvetica", "bold");
+  doc.text("Bilos GPS & Technical Events", doc.internal.pageSize.getWidth() / 2, 30, { align: "center" });
+
+  if (!allEntries.length) {
+    doc.setFontSize(12);
+    doc.text("No data submitted yet.", doc.internal.pageSize.getWidth() / 2, 60, { align: "center" });
+  } else {
+    const head = [[
+      "Driver",
+      "Plate",
+      "Start Point",
+      "Destination",
+      "Date",
+      "Stop Time",
+      "Stop Place",
+      "Unauthorized",
+      "GPS Issues",
+      "Tech Issues"
+    ]];
+
+    const body = allEntries.map(entry => [
+      entry.driver || "-",
+      entry.plate || "-",
+      entry.startingPoint || "-",
+      entry.destination || "-",
+      entry.date || "-",
+      entry.stoppingTime || "-",
+      entry.stoppingPlace || "-",
+      entry.unauthorised || "-",
+      entry.gpsProblem || "-",
+      entry.techProblem || "-"
+    ]);
+
+    doc.autoTable({
+      startY: 60,
+      head: head,
+      body: body,
+      margin: { left: 10, right: 10 },
+      styles: {
+        fontSize: 8,  // Smaller font size to fit everything
+        cellPadding: 3,
+        overflow: 'linebreak',
+        halign: 'left'
+      },
+      headStyles: {
+        fillColor: [35, 102, 209],
+        textColor: [255, 255, 255],
+        fontStyle: 'bold',
+        fontSize: 9
+      },
+      columnStyles: {
+        0: { cellWidth: 60 },  // Driver
+        1: { cellWidth: 40 },  // Plate
+        2: { cellWidth: 60 },  // Start Point
+        3: { cellWidth: 60 },  // Destination
+        4: { cellWidth: 40 },  // Date
+        5: { cellWidth: 40 },  // Stop Time
+        6: { cellWidth: 60 },  // Stop Place
+        7: { cellWidth: 50 },  // Unauthorized
+        8: { cellWidth: 40 },  // GPS Issues
+        9: { cellWidth: 40 }   // Tech Issues
       }
-      doc.save('gps_information.pdf');
-    }
+    });
+  }
+
+  doc.save('gps_information.pdf');
+}
 
     function editSelectedRow() {
       if (lastSelectedRowIndex == null || lastSelectedId == null) {
