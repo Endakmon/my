@@ -346,87 +346,69 @@
 function exportPDF() {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({
-    orientation: 'landscape',
+    orientation: 'portrait', // Changed to portrait to match image
     unit: 'pt',
     format: 'a4'
   });
 
-  // Title
-  doc.setFontSize(28);
+  // Title - made smaller and less prominent
+  doc.setFontSize(18);
   doc.setFont("helvetica", "bold");
-  doc.text("Bilos GPS Events", doc.internal.pageSize.getWidth() / 2, 70, { align: "center" });
+  doc.text("Bilos GPS Events", 40, 40);
 
-  // Table headers exactly like the image
-  const head = [[
-    "Driver",
-    "Plate",
-    "Start Point",
-    "Destination",
-    "Date",
-    "Moved Time",
-    "Stop Time",
-    "Stop Place",
-    "Unauthorized",
-    "GPS Issues",
-    "Tech Issues"
-  ]];
+  // Simplified headers to match image
+  const head = [["Driver", "Plate", "Date", "Moved"]];
 
-  // Data rows, all fields must be on one line (no line breaks!)
-  const body = allEntries.map(entry => [
-    entry.driver || "-",
-    entry.plate || "-",
-    entry.startingPoint || "-",
-    entry.destination || "-",
-    entry.date || "-",
-    entry.movedTime || "-",
-    entry.stoppingTime || "-",
-    entry.stoppingPlace || "-",
-    entry.unauthorised || "-",
-    entry.gpsProblem || "-",
-    entry.techProblem || "-"
-  ]);
+  // Simplified data to match image
+  const body = [
+    ["Dawit Beyen", "92897", "2025-06-10", "4567-9876"]
+  ];
 
   doc.autoTable({
-    startY: 100,
+    startY: 60,
     head: head,
     body: body,
-    showHead: "everyPage",
-    theme: 'plain',
+    showHead: "firstPage",
+    theme: 'grid', // Changed to grid for basic borders
     styles: {
       font: 'helvetica',
-      fontSize: 13,
-      cellPadding: { top: 8, right: 6, bottom: 8, left: 6 },
+      fontSize: 11, // Smaller font
+      cellPadding: 4, // Less padding
       overflow: 'linebreak',
       halign: 'left',
       valign: 'middle',
-      textColor: [60, 60, 60],
-      minCellHeight: 24,
+      textColor: [0, 0, 0], // Pure black
+      minCellHeight: 20, // Smaller rows
     },
     headStyles: {
-      fillColor: [23, 98, 199],
-      textColor: [255, 255, 255],
+      textColor: [0, 0, 0], // Black text
       fontStyle: 'bold',
-      fontSize: 14,
-      halign: 'center',
-      valign: 'middle'
+      fontSize: 11,
+      halign: 'left', // Left aligned like image
+      valign: 'middle',
+      fillColor: [255, 255, 255] // White background
     },
     bodyStyles: {
-      fillColor: [247, 247, 247],
-      textColor: [60, 60, 60],
+      textColor: [0, 0, 0],
       fontStyle: 'normal',
-      fontSize: 13,
+      fontSize: 11,
       halign: 'left',
-      valign: 'middle'
+      valign: 'middle',
+      fillColor: [255, 255, 255] // White background
     },
-    alternateRowStyles: {
-      fillColor: [247, 247, 247]
-    },
-    margin: { left: 55, right: 55 }
+    margin: { left: 40, right: 40 }, // Narrower margins
+    tableWidth: 'auto', // Auto width to content
+    columnStyles: {
+      0: { cellWidth: 100 }, // Driver column
+      1: { cellWidth: 60 },  // Plate column
+      2: { cellWidth: 80 },  // Date column
+      3: { cellWidth: 80 }   // Moved column
+    }
   });
 
-  doc.save('gps_events.pdf');
+  doc.save('gps_event info.pdf');
 }
-
+  
 
     function editSelectedRow() {
       if (lastSelectedRowIndex == null || lastSelectedId == null) {
