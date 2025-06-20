@@ -343,7 +343,7 @@
       });
     }
 
-  function exportPDF() {
+function exportPDF() {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({
     orientation: 'landscape',
@@ -356,7 +356,7 @@
   doc.setFont("helvetica", "bold");
   doc.text("Bilos GPS Events", doc.internal.pageSize.getWidth() / 2, 70, { align: "center" });
 
-  // Table headers and body
+  // Table headers exactly like the image
   const head = [[
     "Driver",
     "Plate",
@@ -371,6 +371,7 @@
     "Tech Issues"
   ]];
 
+  // Data rows, all fields must be on one line (no line breaks!)
   const body = allEntries.map(entry => [
     entry.driver || "-",
     entry.plate || "-",
@@ -389,25 +390,43 @@
     startY: 100,
     head: head,
     body: body,
-    theme: 'grid',
+    showHead: "everyPage",
+    theme: 'plain',
     styles: {
-      halign: 'center',
-      fontSize: 12,
-      cellPadding: 8
+      font: 'helvetica',
+      fontSize: 13,
+      cellPadding: { top: 8, right: 6, bottom: 8, left: 6 },
+      overflow: 'linebreak',
+      halign: 'left',
+      valign: 'middle',
+      textColor: [60, 60, 60],
+      minCellHeight: 24,
     },
     headStyles: {
-      fillColor: [23, 98, 199], // #1762c7
-      textColor: 255,
-      fontStyle: 'bold'
+      fillColor: [23, 98, 199],
+      textColor: [255, 255, 255],
+      fontStyle: 'bold',
+      fontSize: 14,
+      halign: 'center',
+      valign: 'middle'
+    },
+    bodyStyles: {
+      fillColor: [247, 247, 247],
+      textColor: [60, 60, 60],
+      fontStyle: 'normal',
+      fontSize: 13,
+      halign: 'left',
+      valign: 'middle'
     },
     alternateRowStyles: {
-      fillColor: [245, 245, 245] // subtle gray
+      fillColor: [247, 247, 247]
     },
-    margin: { left: 50, right: 50 }
+    margin: { left: 55, right: 55 }
   });
 
-  doc.save('gps_event information.pdf');
+  doc.save('gps_events.pdf');
 }
+
 
     function editSelectedRow() {
       if (lastSelectedRowIndex == null || lastSelectedId == null) {
