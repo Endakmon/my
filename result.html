@@ -346,7 +346,7 @@
 function exportPDF() {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({
-    orientation: "landscape", // Makes more room horizontally
+    orientation: "landscape", // Gives more horizontal space
     unit: "mm",
     format: "a4"
   });
@@ -366,7 +366,8 @@ function exportPDF() {
       "Date",
       "Stopping Time",
       "Stopping Place",
-      "Moved Unauthorised Place (if any)",
+      "Moved Time",
+      "Moved Unauthorised Place",
       "Other GPS Problem",
       "Technical Problem"
     ]];
@@ -379,6 +380,7 @@ function exportPDF() {
       entry.date || "-",
       entry.stoppingTime || "-",
       entry.stoppingPlace || "-",
+      entry.movedTime || "-", // assuming this is part of your entry
       entry.unauthorised || "-",
       entry.gpsProblem || "-",
       entry.techProblem || "-"
@@ -389,12 +391,18 @@ function exportPDF() {
       head: head,
       body: body,
       styles: {
-        fontSize: 10,
-        cellWidth: 'wrap'
+        fontSize: 9,
+        cellWidth: 'wrap',      // wrap long text
+        overflow: 'linebreak'   // prevent text cutoff
+      },
+      columnStyles: {
+        8: { cellWidth: 40 },   // "Moved Unauthorised Place"
+        10: { cellWidth: 40 }   // "Technical Problem"
       },
       headStyles: {
         fillColor: [35, 102, 209],
-        textColor: 255
+        textColor: 255,
+        fontSize: 9
       },
       margin: { left: 14, right: 14 }
     });
@@ -402,6 +410,9 @@ function exportPDF() {
 
   doc.save('gps_information.pdf');
 }
+
+
+ 
 
     function editSelectedRow() {
       if (lastSelectedRowIndex == null || lastSelectedId == null) {
