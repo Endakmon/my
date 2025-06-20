@@ -535,12 +535,13 @@ function exportPDF() {
         alert("Wrong code. Deletion cancelled.");
         return;
       }
-      if (!confirm("Are you sure you want to delete the selected entry?")) {
-        return;
-      }
-      allEntries.splice(rowIndex, 1);
-      populateTable();
-      alert("Entry removed from table ().");
+     if (!confirm("Are you sure you want to delete the selected entry?")) {
+    return;
+}
+// Remove just the one entry at rowIndex
+allEntries.splice(rowIndex, 1);
+populateTable();
+alert("Entry removed from table.");
  
   // Remove only from the displayed array
  
