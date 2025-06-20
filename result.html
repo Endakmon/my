@@ -13,7 +13,7 @@
     .container { max-width: 1500px; margin: 0px auto; background: #DA654390; border-radius: 0px; padding: 32px 36px; box-shadow: 0 2px 8px #ececec; position: relative; }
     table { border-collapse:collapse; width: 100%; margin-top: 9px; }
     th, td { border: 1px solid #ccc; padding: 9px 8px; text-align: left; font-size: 15px; }
-    th { background: #f0f0f0; }
+    th { background: #2369d1; color: #fff; }
     .actions { margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 10px;}
     button { padding: 9px 20px; font-size: 15px; border-radius: 4px; border: none; background: #2369d1; color: white; cursor: pointer; }
     button[type="button"] { background: #6c757d; }
@@ -80,14 +80,14 @@
     tr { transition: background 0.2s;}
     #clearInput {
       padding: 6px 12px;
-      font-size: 5px;
+      font-size: 15px;
       border: 1px solid #bbb;
       border-radius: 4px;
       margin-right: 10px;
     }
     #adminClear {
       display: none;
-      font-size:3px
+      font-size:15px;
     }
     .popup-overlay {
       position: fixed;
@@ -232,13 +232,12 @@
       apiKey: "AIzaSyBNXwvhr0Xeczla_65xMBeYo6_1C3szp7c",
       authDomain: "endex-bilos.firebaseapp.com",
       projectId: "endex-bilos",
-      storageBucket: "endex-bilos.firebasestorage.app",
+      storageBucket: "endex-bilos.appspot.com",
       messagingSenderId: "586655593314",
       appId: "1:586655593314:web:60f21bf38c33e0f960f23b"
     };
     // Initialize Firebase
-    
-firebase.initializeApp(firebaseConfig);
+    firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
     let lastSelectedRow = null;
     let lastSelectedRowIndex = null;
@@ -312,12 +311,24 @@ firebase.initializeApp(firebaseConfig);
       const tbody = document.getElementById('dataRows');
       tbody.innerHTML = '';
       if (!allEntries.length) {
-        tbody.innerHTML = '<tr><td colspan="10" style="text-align:center">No data submitted yet.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="11" style="text-align:center">No data submitted yet.</td></tr>';
         return;
       }
       const menuPopup = document.getElementById('menuPopup');
       allEntries.forEach((entry, idx) => {
         const formatField = val => val && val.trim() !== '' ? val : '-';
+        const linkify = val => {
+          if (!val || val.trim() === '-') return '-';
+          // Simple linkify for coordinates or maps url
+          const coordRegex = /^\s*-?\d+(\.\d+)?\s*,\s*-?\d+(\.\d+)?\s*$/;
+          if (coordRegex.test(val)) {
+            return `<a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(val)}" target="_blank">${val}</a>`;
+          }
+          if (val.startsWith("http") && val.includes("maps.google.com")) {
+            return `<a href="${val}" target="_blank">${val}</a>`;
+          }
+          return val;
+        };
         const row = document.createElement('tr');
         row.innerHTML = `
           <td>${formatField(entry.driver)}</td>
@@ -327,8 +338,8 @@ firebase.initializeApp(firebaseConfig);
           <td>${formatField(entry.date)}</td>
           <td>${formatField(entry.movedTime)}</td>
           <td>${formatField(entry.stoppingTime)}</td>
-          <td>${formatField(entry.stoppingPlace)}</td>
-          <td>${formatField(entry.unauthorised)}</td>
+          <td>${linkify(entry.stoppingPlace)}</td>
+          <td>${linkify(entry.unauthorised)}</td>
           <td>${formatField(entry.gpsProblem)}</td>
           <td>${formatField(entry.techProblem)}</td>
         `;
@@ -394,143 +405,131 @@ firebase.initializeApp(firebaseConfig);
     }
 
     function clearData() {
-      if(confirm("Are you sure you want to clear all data?")) {
-        db.collection("gpsEntries").get().then(snapshot => {
-          const batch = db.batch();
-          snapshot.forEach(doc => batch.delete(doc.ref));
-          return batch.commit();
-        }).then(() => {
-          lastSelectedRow = null;
-          lastSelectedRowIndex = null;
-          lastSelectedId = null;
-          alert('All data has been cleared.');
-        });
-      }
+      // Only remove data from the page, NOT from Firestore
+      allEntries = [];
+      populateTable();
+      lastSelectedRow = null;
+      lastSelectedRowIndex = null;
+      lastSelectedId = null;
+      alert('All data has been cleared from the table (not deleted from server/database). Reload the page to reload the data.');
     }
 
-function exportPDF() {
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF({
-    orientation: 'landscape'
-  });
+    function exportPDF() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({ orientation: 'landscape' });
 
-  // Title styling
-  doc.setFontSize(18);
-  doc.setFont('helvetica', 'bold');
-  const title = "Bilos GPS Events";
-  doc.text(title, doc.internal.pageSize.getWidth() / 2, 15, { align: 'center' });
+      doc.setFontSize(18);
+      doc.setFont('helvetica', 'bold');
+      doc.text("Bilos GPS Events", doc.internal.pageSize.getWidth() / 2, 15, { align: 'center' });
 
-  let y = 25;
+      let y = 25;
 
-  if (!allEntries || !allEntries.length) {
-    doc.setFontSize(12);
-    doc.setFont('helvetica', 'normal');
-    doc.text("No data submitted yet.", 20, y);
-  } else {
-    // Column headers
-    const headers = [
-      'Driver', 'Plate No', 'Start Point', 'Destination', 'Date', 'Moved Time', 'Stopping Time',
-      'Stopping Place', 'moved Unauthorized', 'other GPS problem', 'other technical problem'
-    ];
+      if (!allEntries || !allEntries.length) {
+        doc.setFontSize(12);
+        doc.setFont('helvetica', 'normal');
+        doc.text("No data submitted yet.", 20, y);
+      } else {
+        allEntries.forEach((entry, idx) => {
+          let rowY = y + (idx * 65);
+          // Individual fields, each row per field
+          doc.setFontSize(13);
+          doc.setTextColor(25, 92, 202);
+          doc.setFont('helvetica', 'bold');
+          doc.text("Driver Name:", 18, rowY);
+          doc.text("Plate Number:", 70, rowY);
+          doc.text("Start Point:", 150, rowY);
+          doc.text("Destination:", 230, rowY);
+          doc.setFont('helvetica', 'normal');
+          doc.setTextColor(0,0,0);
+          doc.text(String(entry.driver || '-'), 42, rowY);
+          doc.text(String(entry.plate || '-'), 108, rowY);
+          doc.text(String(entry.startingPoint || '-'), 185, rowY);
+          doc.text(String(entry.destination || '-'), 277, rowY);
 
-    // Prepare body with raw text, but keep map fields separately for clickable links
-    const body = allEntries.map(entry => [
-      entry.driver || '-',
-      entry.plate || '-',
-      entry.startingPoint?.substring(0, 20) + (entry.startingPoint?.length > 25 ? '...' : '') || '-',
-      entry.destination?.substring(0, 20) + (entry.destination?.length > 25 ? '...' : '') || '-',
-      entry.date || '-',
-      entry.movedTime || '-',
-      entry.stoppingTime || '-',
-      entry.stoppingPlace || '-',
-      entry.unauthorised || '-',
-      entry.gpsProblem || '-',
-      entry.techProblem || '-'
-    ]);
+          doc.setFont('helvetica', 'bold');
+          doc.setTextColor(25, 92, 202);
+          doc.text("Date:", 18, rowY + 12);
+          doc.text("Moved Time:", 70, rowY + 12);
+          doc.text("Stopping Time:", 150, rowY + 12);
+          doc.setFont('helvetica', 'normal');
+          doc.setTextColor(0,0,0);
+          doc.text(String(entry.date || '-'), 35, rowY + 12);
+          doc.text(String(entry.movedTime || '-'), 110, rowY + 12);
+          doc.text(String(entry.stoppingTime || '-'), 195, rowY + 12);
 
-    // Generate table
-    doc.autoTable({
-      startY: y,
-      head: [headers],
-      body: body,
-      styles: {
-        fontSize: 10,
-        cellPadding: 4,
-        overflow: 'linebreak',
-        halign: 'center',
-        valign: 'middle',
-        minCellHeight: 10
-      },
-      headStyles: {
-        fillColor: [30, 97, 207],
-        textColor: 255,
-        fontStyle: 'bold',
-        halign: 'center',
-        cellPadding: 5
-      },
-      bodyStyles: {
-        cellPadding: 4,
-        minCellHeight: 12
-      },
-      margin: { top: y - 5 },
-      tableWidth: 'auto',
-      showHead: 'everyPage',
-      didDrawCell: function (data) {
-        // Only make Stopping Place and Unauthorized Place clickable
-        if (data.section === 'body' && allEntries[data.row.index]) {
-          const entry = allEntries[data.row.index];
-          // Stopping Place
-          if (data.column.index === 7 && entry.stoppingPlace && entry.stoppingPlace !== '-') {
-            const place = entry.stoppingPlace;
+          doc.setFont('helvetica', 'bold');
+          doc.setTextColor(25, 92, 202);
+          doc.text("Stopping Place:", 18, rowY + 24);
+          doc.setFont('helvetica', 'normal');
+          doc.setTextColor(0,0,255);
+          let stoppingPlace = entry.stoppingPlace || '-';
+          if (stoppingPlace && stoppingPlace !== '-') {
             let url = '';
             const coordRegex = /^\s*-?\d+(\.\d+)?\s*,\s*-?\d+(\.\d+)?\s*$/;
-            if (coordRegex.test(place)) {
-              url = `https://www.google.com/maps/search/?api=1&query=${place}`;
+            if (coordRegex.test(stoppingPlace)) {
+              url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(stoppingPlace)}`;
+            } else if (stoppingPlace.startsWith("http") && stoppingPlace.includes("maps.google.com")) {
+              url = stoppingPlace;
             } else {
-              url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(place)}`;
+              url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(stoppingPlace)}`;
             }
-            // Add clickable link
-            doc.link(
-              data.cell.x, data.cell.y,
-              data.cell.width, data.cell.height,
-              { url: url }
-            );
+            doc.textWithLink(stoppingPlace, 57, rowY + 24, { url });
+          } else {
+            doc.setTextColor(0,0,0);
+            doc.text("-", 57, rowY + 24);
           }
-          // Unauthorized Place
-          if (data.column.index === 8 && entry.unauthorised && entry.unauthorised !== '-') {
-            const place = entry.unauthorised;
+
+          doc.setFont('helvetica', 'bold');
+          doc.setTextColor(25, 92, 202);
+          doc.text("Moved Unauthorized:", 120, rowY + 24);
+          doc.setFont('helvetica', 'normal');
+          doc.setTextColor(0,0,255);
+          let movedUnauthorized = entry.unauthorised || '-';
+          if (movedUnauthorized && movedUnauthorized !== '-') {
             let url = '';
             const coordRegex = /^\s*-?\d+(\.\d+)?\s*,\s*-?\d+(\.\d+)?\s*$/;
-            if (coordRegex.test(place)) {
-              url = `https://www.google.com/maps/search/?api=1&query=${place}`;
+            if (coordRegex.test(movedUnauthorized)) {
+              url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(movedUnauthorized)}`;
+            } else if (movedUnauthorized.startsWith("http") && movedUnauthorized.includes("maps.google.com")) {
+              url = movedUnauthorized;
             } else {
-              url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(place)}`;
+              url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(movedUnauthorized)}`;
             }
-            doc.link(
-              data.cell.x, data.cell.y,
-              data.cell.width, data.cell.height,
-              { url: url }
-            );
+            doc.textWithLink(movedUnauthorized, 170, rowY + 24, { url });
+          } else {
+            doc.setTextColor(0,0,0);
+            doc.text("-", 170, rowY + 24);
           }
-        }
+
+          doc.setFont('helvetica', 'bold');
+          doc.setTextColor(25, 92, 202);
+          doc.text("Other GPS Problem:", 18, rowY + 36);
+          doc.text("Technical Problem:", 120, rowY + 36);
+          doc.setFont('helvetica', 'normal');
+          doc.setTextColor(0,0,0);
+          doc.text(String(entry.gpsProblem || '-'), 63, rowY + 36);
+          doc.text(String(entry.techProblem || '-'), 170, rowY + 36);
+
+          // Draw a line to separate entries
+          doc.setDrawColor(200, 200, 200);
+          doc.line(15, rowY + 44, 285, rowY + 44);
+        });
+
+        y += allEntries.length * 65;
       }
-    });
 
-    y = doc.lastAutoTable.finalY + 10;
-  }
+      // Add clickable web link at the end
+      doc.setFontSize(13);
+      doc.setTextColor(8, 69, 160);
+      const linkText = "View : https://endex-git-main-endakmons-projects.vercel.app/result.html";
+      doc.textWithLink(linkText, 20, y + 10, {
+        url: "https://endex-git-main-endakmons-projects.vercel.app/result.html"
+      });
 
-  // Add clickable web link at the end
-  doc.setFontSize(13);
-  doc.setTextColor(8, 69, 160);
-  const linkText = "View Online: https://endex-git-main-endakmons-projects.vercel.app/result.html";
-  doc.textWithLink(linkText, 20, y + 10, {
-    url: "https://endex-git-main-endakmons-projects.vercel.app/result.html"
-  });
-
-  // Save PDF with timestamp
-  const timestamp = new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-');
-  doc.save(`gps-report_${timestamp}.pdf`);
-}
+      // Save PDF with timestamp
+      const timestamp = new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-');
+      doc.save(`gps-report_${timestamp}.pdf`);
+    }
 
     function editSelectedRow() {
       if (lastSelectedRowIndex == null || lastSelectedId == null) {
@@ -566,26 +565,28 @@ function exportPDF() {
       });
     }
 
-function deleteSelectedRow() {
-  if (lastSelectedRowIndex == null || lastSelectedId == null) {
-    alert("Please select a row to delete.");
-    return;
-  }
-  const code = prompt("Enter admin code to delete this entry:");
-  if (!code || code.trim() !== "6121") {
-    alert("Wrong code. Deletion cancelled.");
-    return;
-  }
-  if (!confirm("Are you sure you want to delete the selected entry?")) {
-    return;
-  }
-  db.collection("gpsEntries").doc(lastSelectedId).delete().then(() => {
-    lastSelectedRow = null;
-    lastSelectedRowIndex = null;
-    lastSelectedId = null;
-    alert("Entry deleted.");
-  });
-}
+    function deleteSelectedRow() {
+      // Only remove from the UI, not from Firestore
+      if (lastSelectedRowIndex == null) {
+        alert("Please select a row to delete.");
+        return;
+      }
+      const code = prompt("Enter admin code to delete this entry:");
+      if (!code || code.trim() !== "6121") {
+        alert("Wrong code. Deletion cancelled.");
+        return;
+      }
+      if (!confirm("Are you sure you want to delete the selected entry from the table? This does NOT delete it from the server/database. Reload the page to see the entry again.")) {
+        return;
+      }
+      allEntries.splice(lastSelectedRowIndex, 1);
+      populateTable();
+      lastSelectedRow = null;
+      lastSelectedRowIndex = null;
+      lastSelectedId = null;
+      alert("Entry removed from table. Reload the page to see it again.");
+    }
+
     // --- MAIN DATA LOADING LOGIC (robust, with error handling) ---
     function subscribeToEntries() {
       showLoading();
@@ -603,7 +604,6 @@ function deleteSelectedRow() {
           }, function(error) {
             hideLoading();
             showError("Failed to load data: " + (error?.message || error));
-            // Optionally: show permission hint
             if (error && error.code === "permission-denied") {
               showError(`Failed to load data: Missing or insufficient permissions.<br>
                 <b>Firestore rules may be too strict.</b> <br>
@@ -626,6 +626,8 @@ function deleteSelectedRow() {
       }
     }
   </script>
+</head>
+<body>
   <!-- Loading/Error messages -->
   <div id="loadingMsg" style="text-align:center; color:#444; margin-top:12px; display:none;">Loading data, please wait...</div>
   <div id="errorMsg" style="text-align:center; color:red; margin-top:12px; display:none;"></div>
