@@ -317,18 +317,7 @@
       const menuPopup = document.getElementById('menuPopup');
       allEntries.forEach((entry, idx) => {
         const formatField = val => val && val.trim() !== '' ? val : '-';
-        const linkify = val => {
-          if (!val || val.trim() === '-') return '-';
-          // Simple linkify for coordinates or maps url
-          const coordRegex = /^\s*-?\d+(\.\d+)?\s*,\s*-?\d+(\.\d+)?\s*$/;
-          if (coordRegex.test(val)) {
-            return `<a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(val)}" target="_blank">${val}</a>`;
-          }
-          if (val.startsWith("http") && val.includes("maps.google.com")) {
-            return `<a href="${val}" target="_blank">${val}</a>`;
-          }
-          return val;
-        };
+        // No linkify; just plain text for map fields.
         const row = document.createElement('tr');
         row.innerHTML = `
           <td>${formatField(entry.driver)}</td>
@@ -338,8 +327,8 @@
           <td>${formatField(entry.date)}</td>
           <td>${formatField(entry.movedTime)}</td>
           <td>${formatField(entry.stoppingTime)}</td>
-          <td>${linkify(entry.stoppingPlace)}</td>
-          <td>${linkify(entry.unauthorised)}</td>
+          <td>${formatField(entry.stoppingPlace)}</td>
+          <td>${formatField(entry.unauthorised)}</td>
           <td>${formatField(entry.gpsProblem)}</td>
           <td>${formatField(entry.techProblem)}</td>
         `;
@@ -414,6 +403,7 @@
       alert('All data has been cleared from the table (not deleted from server/database). Reload the page to reload the data.');
     }
 
+    // PDF: Table format, clickable map links in PDF only, not in web table
     function exportPDF() {
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF({ orientation: 'landscape' });
@@ -422,49 +412,44 @@
       doc.setFont('helvetica', 'bold');
       doc.text("Bilos GPS Events", doc.internal.pageSize.getWidth() / 2, 15, { align: 'center' });
 
-      let y = 25;
+      const headers = [
+        "Driver Name", "Plate Number", "Starting Point", "Destination", "Date",
+        "Moved Time", "Stopping Time", "Stopping Place", "Moved Unauthorized",
+        "Other GPS Problem", "Technical Problem"
+      ];
 
-      if (!allEntries || !allEntries.length) {
-        doc.setFontSize(12);
-        doc.setFont('helvetica', 'normal');
-        doc.text("No data submitted yet.", 20, y);
-      } else {
-        allEntries.forEach((entry, idx) => {
-          let rowY = y + (idx * 65);
-          // Individual fields, each row per field
-          doc.setFontSize(13);
-          doc.setTextColor(25, 92, 202);
-          doc.setFont('helvetica', 'bold');
-          doc.text("Driver Name:", 18, rowY);
-          doc.text("Plate Number:", 70, rowY);
-          doc.text("Start Point:", 150, rowY);
-          doc.text("Destination:", 230, rowY);
-          doc.setFont('helvetica', 'normal');
-          doc.setTextColor(0,0,0);
-          doc.text(String(entry.driver || '-'), 42, rowY);
-          doc.text(String(entry.plate || '-'), 108, rowY);
-          doc.text(String(entry.startingPoint || '-'), 185, rowY);
-          doc.text(String(entry.destination || '-'), 277, rowY);
+      const body = allEntries.map(entry => [
+        entry.driver || "-",
+        entry.plate || "-",
+        entry.startingPoint || "-",
+        entry.destination || "-",
+        entry.date || "-",
+        entry.movedTime || "-",
+        entry.stoppingTime || "-",
+        entry.stoppingPlace || "-",
+        entry.unauthorised || "-",
+        entry.gpsProblem || "-",
+        entry.techProblem || "-"
+      ]);
 
-          doc.setFont('helvetica', 'bold');
-          doc.setTextColor(25, 92, 202);
-          doc.text("Date:", 18, rowY + 12);
-          doc.text("Moved Time:", 70, rowY + 12);
-          doc.text("Stopping Time:", 150, rowY + 12);
-          doc.setFont('helvetica', 'normal');
-          doc.setTextColor(0,0,0);
-          doc.text(String(entry.date || '-'), 35, rowY + 12);
-          doc.text(String(entry.movedTime || '-'), 110, rowY + 12);
-          doc.text(String(entry.stoppingTime || '-'), 195, rowY + 12);
+      doc.autoTable({
+        startY: 25,
+        head: [headers],
+        body: body,
+        styles: { fontSize: 10, cellPadding: 3, overflow: 'linebreak', halign: 'center' },
+        headStyles: { fillColor: [25, 92, 202], textColor: 255, fontStyle: 'bold' },
+        bodyStyles: { cellPadding: 3 },
+        margin: { left: 10, right: 10 }
+      });
 
-          doc.setFont('helvetica', 'bold');
-          doc.setTextColor(25, 92, 202);
-          doc.text("Stopping Place:", 18, rowY + 24);
-          doc.setFont('helvetica', 'normal');
-          doc.setTextColor(0,0,255);
-          let stoppingPlace = entry.stoppingPlace || '-';
-          if (stoppingPlace && stoppingPlace !== '-') {
-            let url = '';
+      // Add clickable links for map columns in the PDF
+      const table = doc.lastAutoTable;
+      if (table && table.body) {
+        table.body.forEach((row, i) => {
+          // Stopping Place (col 7)
+          const stoppingPlace = allEntries[i].stoppingPlace;
+          if (stoppingPlace && stoppingPlace !== "-") {
+            let url = "";
             const coordRegex = /^\s*-?\d+(\.\d+)?\s*,\s*-?\d+(\.\d+)?\s*$/;
             if (coordRegex.test(stoppingPlace)) {
               url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(stoppingPlace)}`;
@@ -473,20 +458,13 @@
             } else {
               url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(stoppingPlace)}`;
             }
-            doc.textWithLink(stoppingPlace, 57, rowY + 24, { url });
-          } else {
-            doc.setTextColor(0,0,0);
-            doc.text("-", 57, rowY + 24);
+            const cell = row.cells[7];
+            doc.link(cell.x, cell.y, cell.width, cell.height, { url });
           }
-
-          doc.setFont('helvetica', 'bold');
-          doc.setTextColor(25, 92, 202);
-          doc.text("Moved Unauthorized:", 120, rowY + 24);
-          doc.setFont('helvetica', 'normal');
-          doc.setTextColor(0,0,255);
-          let movedUnauthorized = entry.unauthorised || '-';
-          if (movedUnauthorized && movedUnauthorized !== '-') {
-            let url = '';
+          // Moved Unauthorized (col 8)
+          const movedUnauthorized = allEntries[i].unauthorised;
+          if (movedUnauthorized && movedUnauthorized !== "-") {
+            let url = "";
             const coordRegex = /^\s*-?\d+(\.\d+)?\s*,\s*-?\d+(\.\d+)?\s*$/;
             if (coordRegex.test(movedUnauthorized)) {
               url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(movedUnauthorized)}`;
@@ -495,38 +473,22 @@
             } else {
               url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(movedUnauthorized)}`;
             }
-            doc.textWithLink(movedUnauthorized, 170, rowY + 24, { url });
-          } else {
-            doc.setTextColor(0,0,0);
-            doc.text("-", 170, rowY + 24);
+            const cell = row.cells[8];
+            doc.link(cell.x, cell.y, cell.width, cell.height, { url });
           }
-
-          doc.setFont('helvetica', 'bold');
-          doc.setTextColor(25, 92, 202);
-          doc.text("Other GPS Problem:", 18, rowY + 36);
-          doc.text("Technical Problem:", 120, rowY + 36);
-          doc.setFont('helvetica', 'normal');
-          doc.setTextColor(0,0,0);
-          doc.text(String(entry.gpsProblem || '-'), 63, rowY + 36);
-          doc.text(String(entry.techProblem || '-'), 170, rowY + 36);
-
-          // Draw a line to separate entries
-          doc.setDrawColor(200, 200, 200);
-          doc.line(15, rowY + 44, 285, rowY + 44);
         });
-
-        y += allEntries.length * 65;
       }
 
-      // Add clickable web link at the end
+      // Add clickable link at the bottom
+      let finalY = doc.lastAutoTable.finalY || 40;
       doc.setFontSize(13);
       doc.setTextColor(8, 69, 160);
-      const linkText = "View : https://endex-git-main-endakmons-projects.vercel.app/result.html";
-      doc.textWithLink(linkText, 20, y + 10, {
+      const linkText = "View Online: https://endex-git-main-endakmons-projects.vercel.app/result.html";
+      doc.textWithLink(linkText, 14, finalY + 12, {
         url: "https://endex-git-main-endakmons-projects.vercel.app/result.html"
       });
 
-      // Save PDF with timestamp
+      // Save PDF
       const timestamp = new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-');
       doc.save(`gps-report_${timestamp}.pdf`);
     }
