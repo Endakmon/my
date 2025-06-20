@@ -4,72 +4,40 @@
   <meta charset="UTF-8">
   <title>Bilos Car GPS Event</title>
   <link rel="manifest" href="manifest.json">
-  <link rel="icon" href="icons/bilos-512.png">
+  <link rel="icon" href="icons/icon-192.png">
   <style>
     body { 
       min-height: 10vh;
       background:#233981;
     }
-    .container {
-      max-width: 1400px;
-      margin: 30px auto;
-      background: #fff;
-      border-radius: 10px;
-      padding: 40px 36px;
-      box-shadow: 0 2px 8px #ececec;
-      position: relative;
-    }
-    .table-responsive {
-      width: 100%;
-      overflow-x: auto;
-      background: #fff;
-      border-radius: 8px;
-      margin: 0 auto 20px auto;
-      box-shadow: 0 2px 8px #ececec;
-    }
-    .gps-table {
-      border-collapse: collapse;
-      width: 100%;
-      min-width: 1200px;
-      font-family: 'Segoe UI', Arial, sans-serif;
-      background: #fafaff;
-    }
-    .gps-table thead tr {
-      background: #2369d1;
-      color: #fff;
-      text-align: center;
-      font-weight: bold;
-    }
-    .gps-table th, .gps-table td {
-      padding: 12px 10px;
-      border: 1px solid #e1e4ea;
-      font-size: 15px;
-      text-align: center;
-      vertical-align: middle;
-      white-space: nowrap;
-    }
-    .gps-table th {
-      font-weight: bold;
-    }
-    .gps-table tbody tr:nth-child(even) {
-      background: #f4f8ff;
-    }
-    .actions {
-      margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 10px;
-    }
-    button {
-      padding: 9px 20px; font-size: 15px; border-radius: 4px; border: none;
-      background: #2369d1; color: white; cursor: pointer;
-    }
+    .container { max-width: 1500px; margin: 0px auto; background: #DA654390; border-radius: 0px; padding: 32px 36px; box-shadow: 0 2px 8px #ececec; position: relative; }
+    table { border-collapse:collapse; width: 100%; margin-top: 9px; }
+    th, td { border: 1px solid #ccc; padding: 9px 8px; text-align: left; font-size: 15px; }
+    th { background: #f0f0f0; }
+    .actions { margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 10px;}
+    button { padding: 9px 20px; font-size: 15px; border-radius: 4px; border: none; background: #2369d1; color: white; cursor: pointer; }
+    button[type="button"] { background: #6c757d; }
     button:hover { opacity: 0.92; }
     .see-more-btn {
-      background: #ffbe42; color: #222;
-      font-size: 15px; margin-left: 0; padding: 9px 20px; border-radius: 4px; border: none; cursor: pointer; transition: background 0.2s;
+      background: #ffbe42;
+      color: #222;
+      font-size: 15px;
+      margin-left: 0;
+      padding: 9px 20px;
+      border-radius: 4px;
+      border: none;
+      cursor: pointer;
+      transition: background 0.2s;
     }
-    .see-more-btn:hover { background: #ffd262; }
-    @media (max-width: 1100px) {
+    .see-more-btn:hover {
+      background: #ffd262;
+    }
+    @media (max-width: 700px) {
       .container { padding: 12px 3px; }
-      .gps-table th, .gps-table td { font-size: 13px; padding: 8px 4px; }
+      th, td { font-size: 13px; padding: 6px 2px; }
+      .actions { flex-direction: column; }
+      .logo-section img { width: 95px; }
+      .menu-btn { top: 12px; right: 12px; }
     }
     h2{
       text-align:center;
@@ -119,7 +87,7 @@
     }
     #adminClear {
       display: none;
-      font-size:15px;
+      font-size:10px
     }
     .popup-overlay {
       position: fixed;
@@ -264,12 +232,14 @@
       apiKey: "AIzaSyBNXwvhr0Xeczla_65xMBeYo6_1C3szp7c",
       authDomain: "endex-bilos.firebaseapp.com",
       projectId: "endex-bilos",
-      storageBucket: "endex-bilos.appspot.com",
+      storageBucket: "endex-bilos.firebasestorage.app",
       messagingSenderId: "586655593314",
       appId: "1:586655593314:web:60f21bf38c33e0f960f23b"
     };
+    // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
+
     let lastSelectedRow = null;
     let lastSelectedRowIndex = null;
     let lastSelectedId = null;
@@ -291,6 +261,7 @@
       document.getElementById('errorMsg').style.display = 'none';
     }
 
+    // --- Menu button logic ---
     document.addEventListener('DOMContentLoaded', function() {
       const menuBtn = document.getElementById('moreMenuBtn');
       const menuPopup = document.getElementById('menuPopup');
@@ -303,6 +274,7 @@
         }
       });
 
+      // --- Admin code logic ---
       document.getElementById('clearInput').addEventListener('keyup', function(e) {
         if (this.value === '6121') {
           document.getElementById('adminClear').style.display = 'inline-block';
@@ -311,6 +283,7 @@
         }
       });
 
+      // --- Subscribe to Entries ---
       subscribeToEntries();
     });
 
@@ -339,7 +312,7 @@
       const tbody = document.getElementById('dataRows');
       tbody.innerHTML = '';
       if (!allEntries.length) {
-        tbody.innerHTML = '<tr><td colspan="11" style="text-align:center">No data submitted yet.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="10" style="text-align:center">No data submitted yet.</td></tr>';
         return;
       }
       const menuPopup = document.getElementById('menuPopup');
@@ -352,7 +325,6 @@
           <td>${formatField(entry.startingPoint)}</td>
           <td>${formatField(entry.destination)}</td>
           <td>${formatField(entry.date)}</td>
-          <td>${formatField(entry.movedTime)}</td>
           <td>${formatField(entry.stoppingTime)}</td>
           <td>${formatField(entry.stoppingPlace)}</td>
           <td>${formatField(entry.unauthorised)}</td>
@@ -421,102 +393,64 @@
     }
 
     function clearData() {
-      allEntries = [];
-      populateTable();
-      lastSelectedRow = null;
-      lastSelectedRowIndex = null;
-      lastSelectedId = null;
-      alert('All data has been cleared from the table (not deleted from server/database). Reload the page to reload the data.');
-    }
-
-    // PDF: Table format, clickable map links in PDF only, not in web table
-    function exportPDF() {
-      const { jsPDF } = window.jspdf;
-      const doc = new jsPDF({ orientation: 'landscape' });
-
-      doc.setFontSize(18);
-      doc.setFont('helvetica', 'bold');
-      doc.text("Bilos GPS Events", doc.internal.pageSize.getWidth() / 2, 15, { align: 'center' });
-
-      const headers = [
-        "Driver Name", "Plate Number", "Starting Point", "Destination", "Date",
-        "Moved Time", "Stopping Time", "Stopping Place", "Moved Unauthorized",
-        "Other GPS Problem", "Technical Problem"
-      ];
-
-      const body = allEntries.map(entry => [
-        entry.driver || "-",
-        entry.plate || "-",
-        entry.startingPoint || "-",
-        entry.destination || "-",
-        entry.date || "-",
-        entry.movedTime || "-",
-        entry.stoppingTime || "-",
-        entry.stoppingPlace || "-",
-        entry.unauthorised || "-",
-        entry.gpsProblem || "-",
-        entry.techProblem || "-"
-      ]);
-
-      doc.autoTable({
-        startY: 25,
-        head: [headers],
-        body: body,
-        styles: { fontSize: 10, cellPadding: 3, overflow: 'linebreak', halign: 'center' },
-        headStyles: { fillColor: [25, 92, 202], textColor: 255, fontStyle: 'bold' },
-        bodyStyles: { cellPadding: 3 },
-        margin: { left: 10, right: 10 }
-      });
-
-      // Add clickable links for map columns in the PDF
-      const table = doc.lastAutoTable;
-      if (table && table.body) {
-        table.body.forEach((row, i) => {
-          // Stopping Place (col 7)
-          const stoppingPlace = allEntries[i].stoppingPlace;
-          if (stoppingPlace && stoppingPlace !== "-") {
-            let url = "";
-            const coordRegex = /^\s*-?\d+(\.\d+)?\s*,\s*-?\d+(\.\d+)?\s*$/;
-            if (coordRegex.test(stoppingPlace)) {
-              url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(stoppingPlace)}`;
-            } else if (stoppingPlace.startsWith("http") && stoppingPlace.includes("maps.google.com")) {
-              url = stoppingPlace;
-            } else {
-              url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(stoppingPlace)}`;
-            }
-            const cell = row.cells[7];
-            doc.link(cell.x, cell.y, cell.width, cell.height, { url });
-          }
-          // Moved Unauthorized (col 8)
-          const movedUnauthorized = allEntries[i].unauthorised;
-          if (movedUnauthorized && movedUnauthorized !== "-") {
-            let url = "";
-            const coordRegex = /^\s*-?\d+(\.\d+)?\s*,\s*-?\d+(\.\d+)?\s*$/;
-            if (coordRegex.test(movedUnauthorized)) {
-              url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(movedUnauthorized)}`;
-            } else if (movedUnauthorized.startsWith("http") && movedUnauthorized.includes("maps.google.com")) {
-              url = movedUnauthorized;
-            } else {
-              url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(movedUnauthorized)}`;
-            }
-            const cell = row.cells[8];
-            doc.link(cell.x, cell.y, cell.width, cell.height, { url });
-          }
+      if(confirm("Are you sure you want to clear all data?")) {
+        db.collection("gpsEntries").get().then(snapshot => {
+          const batch = db.batch();
+          snapshot.forEach(doc => batch.delete(doc.ref));
+          return batch.commit();
+        }).then(() => {
+          lastSelectedRow = null;
+          lastSelectedRowIndex = null;
+          lastSelectedId = null;
+          alert('All data has been cleared.');
         });
       }
+    }
 
-      // Add clickable link at the bottom
-      let finalY = doc.lastAutoTable.finalY || 40;
-      doc.setFontSize(13);
-      doc.setTextColor(8, 69, 160);
-      const linkText = "View Online: https://endex-git-main-endakmons-projects.vercel.app/result.html";
-      doc.textWithLink(linkText, 14, finalY + 12, {
-        url: "https://endex-git-main-endakmons-projects.vercel.app/result.html"
-      });
+    function exportPDF() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      doc.setFontSize(20);
+      doc.text("Bilos GPS & Technical Events", 14, 18);
+      doc.setFontSize(11);
+      doc.text(" ", 14, 27);
 
-      // Save PDF
-      const timestamp = new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-');
-      doc.save(`gps-report_${timestamp}.pdf`);
+      if (!allEntries.length) {
+        doc.text("No data submitted yet.", 14, 40);
+      } else {
+        const head = [[
+          "Driver Name",
+          "Plate Number",
+          "Starting Point",
+          "Destination",
+          "Date",
+          "Stopping Time",
+          "Stopping Place",
+          "Moved Unauthorised Place (if any)",
+          "Other GPS Problem",
+          "Technical Problem"
+        ]];
+        const body = allEntries.map(entry => [
+          entry.driver || "-",
+          entry.plate || "-",
+          entry.startingPoint || "-",
+          entry.destination || "-",
+          entry.date || "-",
+          entry.stoppingTime || "-",
+          entry.stoppingPlace || "-",
+          entry.unauthorised || "-",
+          entry.gpsProblem || "-",
+          entry.techProblem || "-"
+        ]);
+        doc.autoTable({
+          startY: 40,
+          head: head,
+          body: body,
+          styles: { fontSize: 15},
+          headStyles: { fillColor: [35, 102, 209] }
+        });
+      }
+      doc.save('gps_information.pdf');
     }
 
     function editSelectedRow() {
@@ -531,7 +465,6 @@
         { key: "startingPoint", label: "Starting Point" },
         { key: "destination", label: "Destination" },
         { key: "date", label: "Date" },
-        { key: "movedTime", label: "Moved Time" },
         { key: "stoppingTime", label: "Stopping Time" },
         { key: "stoppingPlace", label: "Stopping Place" },
         { key: "unauthorised", label: "Moved Unauthorised Place" },
@@ -553,27 +486,33 @@
       });
     }
 
+  
     function deleteSelectedRow() {
-      if (lastSelectedRowIndex == null) {
-        alert("Please select a row to delete.");
-        return;
-      }
-      const code = prompt("Enter admin code to delete this entry:");
-      if (!code || code.trim() !== "6121") {
-        alert("Wrong code. Deletion cancelled.");
-        return;
-      }
-      if (!confirm("Are you sure you want to delete the selected entry from the table? This does NOT delete it from the server/database. Reload the page to see the entry again.")) {
-        return;
-      }
-      allEntries.splice(lastSelectedRowIndex, 1);
-      populateTable();
-      lastSelectedRow = null;
-      lastSelectedRowIndex = null;
-      lastSelectedId = null;
-      alert("Entry removed from table. Reload the page to see it again.");
-    }
+  if (lastSelectedRowIndex == null || lastSelectedId == null) {
+    alert("Please select a row to delete.");
+    return;
+  }
+  const code = prompt("Enter admin code to delete this entry:");
+  if (!code || code.trim() !== "6121") {
+    alert("Wrong code. Deletion cancelled.");
+    document.getElementById('menuPopup').classList.remove('active');
+    return;
+  }
+  if (!confirm("Are you sure you want to delete the selected entry?")) {
+    document.getElementById('menuPopup').classList.remove('active');
+    return;
+  }
+  // Remove only from the displayed array
+  allEntries.splice(lastSelectedRowIndex, 1);
+  populateTable();
+  lastSelectedRow = null;
+  lastSelectedRowIndex = null;
+  lastSelectedId = null;
+  document.getElementById('menuPopup').classList.remove('active');
+  alert("Entry removed from table (not deleted from Firebase).");
+}
 
+    // --- MAIN DATA LOADING LOGIC (robust, with error handling) ---
     function subscribeToEntries() {
       showLoading();
       hideError();
@@ -590,6 +529,7 @@
           }, function(error) {
             hideLoading();
             showError("Failed to load data: " + (error?.message || error));
+            // Optionally: show permission hint
             if (error && error.code === "permission-denied") {
               showError(`Failed to load data: Missing or insufficient permissions.<br>
                 <b>Firestore rules may be too strict.</b> <br>
@@ -612,10 +552,10 @@
       }
     }
   </script>
-</head>
-<body>
+  <!-- Loading/Error messages -->
   <div id="loadingMsg" style="text-align:center; color:#444; margin-top:12px; display:none;">Loading data, please wait...</div>
   <div id="errorMsg" style="text-align:center; color:red; margin-top:12px; display:none;"></div>
+  <!-- Three dot menu button -->
   <button class="menu-btn" id="moreMenuBtn" title="More options" aria-label="More options">
     <span class="menu-dots">
       <span class="menu-dot"></span>
@@ -640,28 +580,25 @@
       <input id="clearInput" type="password" placeholder="Admin code">
       <button id="adminClear" onclick="clearData()">Clear All Data</button>
       <button onclick="exportPDF()">Export as PDF</button>
-      <button class="see-more-btn" onclick="seeSelectedOnMap()">See More (Map)</button>
+      <button class="see-more-btn" onclick="seeSelectedOnMap()">See More (Selected)</button>
     </div>
-    <div class="table-responsive">
-      <table class="gps-table">
-        <thead>
-          <tr>
-            <th>Driver Name</th>
-            <th>Plate Number</th>
-            <th>Starting Point</th>
-            <th>Destination</th>
-            <th>Date</th>
-            <th>Moved Time</th>
-            <th>Stopping Time</th>
-            <th>Stopping Place</th>
-            <th>Moved Unauthorized</th>
-            <th>Other GPS Problem</th>
-            <th>Technical Problem</th>
-          </tr>
-        </thead>
-        <tbody id="dataRows"></tbody>
-      </table>
-    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Driver Name</th>
+          <th>Plate Number</th>
+          <th>Starting Point</th>
+          <th>Destination</th>
+          <th>Date</th>
+          <th>Stopping Time</th>
+          <th>Stopping Place</th>
+          <th>Moved Unauthorised Place (if any)</th>
+          <th>Other GPS Problem</th>
+          <th>Technical Problem</th>
+        </tr>
+      </thead>
+      <tbody id="dataRows"></tbody>
+    </table>
   </div>
   <div id="mapPopupOverlay" style="display:none"></div>
 </body>
