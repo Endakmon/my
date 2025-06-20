@@ -189,7 +189,7 @@
       });
     }
 
-    function exportPDF() {
+function exportPDF() {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({
     orientation: "landscape",
@@ -197,8 +197,14 @@
     format: "a4"
   });
 
+  // Centered Title
+  const title = "Bilos GPS Events";
   doc.setFontSize(20);
-  doc.text("Bilos GPS Events", 14, 18);
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const titleWidth = doc.getTextWidth(title);
+  const titleX = (pageWidth - titleWidth) / 2;
+  doc.text(title, titleX, 18);
+
   doc.setFontSize(11);
 
   if (!allEntries.length) {
@@ -238,7 +244,7 @@
       body: body,
       styles: {
         fontSize: 9,
-        overflow: 'hidden',       // Prevents line wrapping
+        overflow: 'hidden',
         cellWidth: 'auto',
         halign: 'center',
         valign: 'middle'
@@ -264,10 +270,19 @@
       },
       margin: { left: 14, right: 14 }
     });
+
+    // Add link below the table
+    const linkText = "https://endex-kappa.vercel.app/";
+    doc.setFontSize(10);
+    const linkWidth = doc.getTextWidth(linkText);
+    const linkX = (pageWidth - linkWidth) / 2;
+    const linkY = doc.lastAutoTable.finalY + 10;
+    doc.textWithLink(linkText, linkX, linkY, { url: linkText });
   }
 
   doc.save('gps_information.pdf');
 }
+
 
 
     function editSelectedRow() {
