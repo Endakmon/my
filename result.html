@@ -347,7 +347,7 @@
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF();
       doc.setFontSize(20);
-      doc.text("Bilos GPS & Technical Events", 14, 18);
+      doc.text("Bilos GPS Events", 14, 18);
       doc.setFontSize(11);
       doc.text(" ", 14, 27);
 
@@ -385,7 +385,7 @@
           head: head,
           body: body,
           styles: { fontSize: 15},
-          headStyles: { fillColor: [35, 102, 209] }
+          headStyles: { fillColor: [15, 82, 189] }
         });
       }
       doc.save('gps_information.pdf');
