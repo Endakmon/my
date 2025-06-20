@@ -7,90 +7,23 @@
   <link rel="icon" href="icons/bilos-800.png">
   <meta name="theme-color" content="#2366d1">
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #8F9779;
-      margin: 0;
-      padding: 0;
-    }
-    .container {
-      max-width: 1000px;
-      margin: 60px auto;
-      background: #D8E4BC;
-      border-radius: 20px;
-      padding: 30px 34px 26px 34px;
-      box-shadow: 0 3px 12px #a2a2a2;
-    }
-    h2 {
-      text-align: center;
-      margin-bottom: 36px;
-      color: #2366d1;
-      font-size: 2rem;
-      letter-spacing: 1px;
-    }
-    .form-section {
-      margin-bottom: 28px;
-      padding-bottom: 10px;
-      border-bottom: 1px solid #c7d2b2;
-    }
-    .form-section:last-child {
-      border-bottom: none;
-      margin-bottom: 0;
-    }
-    .form-group {
-      margin-bottom: 18px;
-    }
-    label {
-      display: block;
-      font-weight: 500;
-      margin-bottom: 6px;
-    }
-    input, select {
-      width: 100%;
-      padding: 8px 10px;
-      font-size: 15px;
-      border-radius: 4px;
-      border: 1px solid #bbb;
-      background: #f6f6f6;
-    }
-    input[type="date"] {
-      padding-top: 5px;
-      padding-bottom: 5px;
-    }
-    .actions {
-      display: flex;
-      gap: 14px;
-      margin-top: 18px;
-      justify-content: center;
-    }
-    button {
-      padding: 9px 20px;
-      font-size: 15px;
-      border-radius: 4px;
-      border: none;
-      background: #2366d1;
-      color: white;
-      cursor: pointer;
-      transition: opacity 0.2s;
-    }
-    button[type="button"] {
-      background: #6c757d;
-    }
-    button:hover {
-      opacity: 0.92;
-    }
-    .inline-actions {
-      display: flex;
-      gap: 6px;
-      margin-bottom: 8px;
-    }
+    body { font-family: Arial, sans-serif; background: #8F9779; margin: 0; padding: 0; }
+    .container { max-width: 1000px; margin: 60px auto; background: #D8E4BC; border-radius: 20px; padding: 30px 34px 26px 34px; box-shadow: 0 3px 12px #a2a2a2; }
+    h2 { text-align: center; margin-bottom: 36px; color: #2366d1; font-size: 2rem; letter-spacing: 1px; }
+    .form-section { margin-bottom: 28px; padding-bottom: 10px; border-bottom: 1px solid #c7d2b2; }
+    .form-section:last-child { border-bottom: none; margin-bottom: 0; }
+    .form-group { margin-bottom: 18px; }
+    label { display: block; font-weight: 500; margin-bottom: 6px; }
+    input, select { width: 100%; padding: 8px 10px; font-size: 15px; border-radius: 4px; border: 1px solid #bbb; background: #f6f6f6; }
+    input[type="date"] { padding-top: 5px; padding-bottom: 5px; }
+    .actions { display: flex; gap: 14px; margin-top: 18px; justify-content: center; }
+    button { padding: 9px 20px; font-size: 15px; border-radius: 4px; border: none; background: #2366d1; color: white; cursor: pointer; transition: opacity 0.2s; }
+    button[type="button"] { background: #6c757d; }
+    button:hover { opacity: 0.92; }
+    .inline-actions { display: flex; gap: 6px; margin-bottom: 8px; }
     @media (max-width: 600px) {
-      .container {
-        padding: 12px 3vw;
-      }
-      h2 {
-        font-size: 1.3rem;
-      }
+      .container { padding: 12px 3vw; }
+      h2 { font-size: 1.3rem; }
     }
   </style>
   <!-- Firebase SDKs -->
@@ -278,4 +211,4 @@
     }
   </script>
 </body>
-</html>     
+</html>
