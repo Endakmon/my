@@ -6,10 +6,7 @@
   <link rel="manifest" href="manifest.json">
   <link rel="icon" href="icons/icon-192.png">
   <style>
-    body { 
-      min-height: 10vh;
-      background:#233981;
-    }
+    body { min-height: 10vh; background:#233981; }
     .container { max-width: 1500px; margin: 0px auto; background: #DA654390; border-radius: 0px; padding: 32px 36px; box-shadow: 0 2px 8px #ececec; position: relative; }
     table { border-collapse:collapse; width: 100%; margin-top: 9px; }
     th, td { border: 1px solid #ccc; padding: 9px 8px; text-align: left; font-size: 15px; }
@@ -29,9 +26,7 @@
       cursor: pointer;
       transition: background 0.2s;
     }
-    .see-more-btn:hover {
-      background: #ffd262;
-    }
+    .see-more-btn:hover { background: #ffd262; }
     @media (max-width: 700px) {
       .container { padding: 12px 3px; }
       th, td { font-size: 13px; padding: 6px 2px; }
@@ -39,191 +34,33 @@
       .logo-section img { width: 95px; }
       .menu-btn { top: 12px; right: 12px; }
     }
-    h2{
-      text-align:center;
-      font-size:40px;
-      background:0;
-      font-style: italic;
-      margin-top: 5px;
-    }
-    .developer-name-floating {
-      position: fixed;
-      bottom: 32px;
-      left: 32px;
-      font-size: 12px;
-      font-style: italic;
-      color: #444;
-      background: #f8f8e8;
-      padding: 10px 26px;
-      border-radius: 22px;
-      box-shadow: 0 2px 8px #c5c5c5;
-      cursor: pointer;
-      transition: transform 0.5s cubic-bezier(0.45, 1.6, 0.5, 0.9), background 0.15s;
-      z-index: 999;
-      display: inline-block;
-    }
-    .developer-name-floating:hover {
-      background: #ffe08a;
-      animation: moveLeftRight 0.6s linear 1;
-      transform: translateX(60px);
-    }
-    @keyframes moveLeftRight {
-      0% { transform: translateX(0); }
-      30% { transform: translateX(-30px);}
-      60% { transform: translateX(50px);}
-      80% { transform: translateX(-20px);}
-      100% { transform: translateX(0);}
-    }
-    tr.selected {
-      background: #ffe08a !important;
-    }
+    h2{ text-align:center; font-size:40px; background:0; font-style: italic; margin-top: 5px; }
+    .developer-name-floating { position: fixed; bottom: 32px; left: 32px; font-size: 12px; font-style: italic; color: #444; background: #f8f8e8; padding: 10px 26px; border-radius: 22px; box-shadow: 0 2px 8px #c5c5c5; cursor: pointer; transition: transform 0.5s cubic-bezier(0.45, 1.6, 0.5, 0.9), background 0.15s; z-index: 999; display: inline-block; }
+    .developer-name-floating:hover { background: #ffe08a; animation: moveLeftRight 0.6s linear 1; transform: translateX(60px); }
+    @keyframes moveLeftRight { 0% { transform: translateX(0); } 30% { transform: translateX(-30px);} 60% { transform: translateX(50px);} 80% { transform: translateX(-20px);} 100% { transform: translateX(0);} }
+    tr.selected { background: #ffe08a !important; }
     tr { transition: background 0.2s;}
-    #clearInput {
-      padding: 6px 12px;
-      font-size: 15px;
-      border: 1px solid #bbb;
-      border-radius: 4px;
-      margin-right: 10px;
-    }
-    #adminClear {
-      display: none;
-      font-size:10px
-    }
-    .popup-overlay {
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0,0,0,0.4);
-      z-index: 10000;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .popup-modal {
-      background: #fff;
-      border-radius: 10px;
-      padding: 32px 30px 25px 30px;
-      min-width: 300px;
-      max-width: 94vw;
-      max-height: 90vh;
-      text-align: center;
-      box-shadow: 0 8px 40px #4446;
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      gap: 18px;
-    }
-    .popup-modal h3 {
-      margin: 0 0 10px;
-      font-size: 22px;
-      color: #2a2a2a;
-    }
-    .popup-modal button {
-      margin: 0 0 0 0;
-      display: block;
-      width: 100%;
-      font-size: 17px;
-      margin-bottom: 8px;
-      border-radius: 6px;
-      padding: 10px 0;
-      background: #2369d1;
-      color: #fff;
-      border: none;
-      cursor: pointer;
-      transition: background 0.15s;
-    }
-    .popup-modal button:disabled {
-      background: #ccc;
-      color: #888;
-      cursor: not-allowed;
-    }
-    .popup-modal .close-btn {
-      background: #da6543;
-      color: #fff;
-      padding: 6px 26px;
-      margin-top: 8px;
-      border-radius: 6px;
-      font-size: 15px;
-    }
-    .popup-modal .close-btn:hover {
-      background: #d13a11;
-    }
-    .menu-btn {
-      position: absolute;
-      top: 24px;
-      right: 24px;
-      width: 36px;
-      height: 36px;
-      background: none;
-      border: none;
-      cursor: pointer;
-      z-index: 1002;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 50%;
-      transition: background 0.2s;
-    }
-    .menu-btn:focus,
-    .menu-btn:hover {
-      background: #eee;
-    }
-    .menu-dots {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      width: 20px;
-      height: 20px;
-      gap: 3px;
-    }
-    .menu-dot {
-      width: 5px;
-      height: 5px;
-      background: #444;
-      border-radius: 50%;
-    }
-    .menu-popup {
-      position: absolute;
-      top: 55px;
-      right: 24px;
-      min-width: 100px;
-      background: #fff;
-      border-radius: 8px;
-      box-shadow: 0 2px 16px #8884;
-      z-index: 1003;
-      display: none;
-      flex-direction: column;
-      padding: 6px 0;
-      animation: fadeInMenu 0.18s;
-    }
-    .menu-popup.active {
-      display: flex;
-    }
-    .menu-popup button {
-      border: none;
-      background: none;
-      color: #222;
-      padding: 12px 24px;
-      text-align: left;
-      font-size: 15px;
-      width: 100%;
-      cursor: pointer;
-      border-radius: 0;
-      transition: background 0.15s;
-    }
-    .menu-popup button:hover {
-      background: #fbeee6;
-      color: #2369d1;
-    }
-    @keyframes fadeInMenu {
-      from { opacity: 0; transform: translateY(-10px);}
-      to { opacity: 1; transform: translateY(0);}
-    }
+    #clearInput { padding: 6px 12px; font-size: 15px; border: 1px solid #bbb; border-radius: 4px; margin-right: 10px; }
+    #adminClear { display: none; font-size:10px }
+    .popup-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.4); z-index: 10000; display: flex; align-items: center; justify-content: center; }
+    .popup-modal { background: #fff; border-radius: 10px; padding: 32px 30px 25px 30px; min-width: 300px; max-width: 94vw; max-height: 90vh; text-align: center; box-shadow: 0 8px 40px #4446; position: relative; display: flex; flex-direction: column; gap: 18px; }
+    .popup-modal h3 { margin: 0 0 10px; font-size: 22px; color: #2a2a2a; }
+    .popup-modal button { margin: 0 0 0 0; display: block; width: 100%; font-size: 17px; margin-bottom: 8px; border-radius: 6px; padding: 10px 0; background: #2369d1; color: #fff; border: none; cursor: pointer; transition: background 0.15s; }
+    .popup-modal button:disabled { background: #ccc; color: #888; cursor: not-allowed; }
+    .popup-modal .close-btn { background: #da6543; color: #fff; padding: 6px 26px; margin-top: 8px; border-radius: 6px; font-size: 15px; }
+    .popup-modal .close-btn:hover { background: #d13a11; }
+    .menu-btn { position: absolute; top: 24px; right: 24px; width: 36px; height: 36px; background: none; border: none; cursor: pointer; z-index: 1002; display: flex; align-items: center; justify-content: center; border-radius: 50%; transition: background 0.2s; }
+    .menu-btn:focus, .menu-btn:hover { background: #eee; }
+    .menu-dots { display: flex; flex-direction: column; justify-content: center; align-items: center; width: 20px; height: 20px; gap: 3px; }
+    .menu-dot { width: 5px; height: 5px; background: #444; border-radius: 50%; }
+    .menu-popup { position: absolute; top: 55px; right: 24px; min-width: 100px; background: #fff; border-radius: 8px; box-shadow: 0 2px 16px #8884; z-index: 1003; display: none; flex-direction: column; padding: 6px 0; animation: fadeInMenu 0.18s; }
+    .menu-popup.active { display: flex; }
+    .menu-popup button { border: none; background: none; color: #222; padding: 12px 24px; text-align: left; font-size: 15px; width: 100%; cursor: pointer; border-radius: 0; transition: background 0.15s; }
+    .menu-popup button:hover { background: #fbeee6; color: #2369d1; }
+    @keyframes fadeInMenu { from { opacity: 0; transform: translateY(-10px);} to { opacity: 1; transform: translateY(0);} }
   </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
-  <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
   <script>
@@ -273,8 +110,6 @@
           menuPopup.classList.remove('active');
         }
       });
-
-      // --- Admin code logic ---
       document.getElementById('clearInput').addEventListener('keyup', function(e) {
         if (this.value === '6121') {
           document.getElementById('adminClear').style.display = 'inline-block';
@@ -282,8 +117,6 @@
           document.getElementById('adminClear').style.display = 'none';
         }
       });
-
-      // --- Subscribe to Entries ---
       subscribeToEntries();
     });
 
@@ -308,6 +141,19 @@
       return true;
     }
 
+    function seeSelectedOnMap() {
+      if (lastSelectedRowIndex == null) {
+        alert("Please select a row.");
+        return;
+      }
+      const entry = allEntries[lastSelectedRowIndex];
+      // Try opening destination, fallback to stoppingPlace, startingPoint
+      if (entry.destination && openOnMap(entry.destination)) return;
+      if (entry.stoppingPlace && openOnMap(entry.stoppingPlace)) return;
+      if (entry.startingPoint && openOnMap(entry.startingPoint)) return;
+      alert("No valid place to open on map.");
+    }
+
     function populateTable() {
       const tbody = document.getElementById('dataRows');
       tbody.innerHTML = '';
@@ -319,8 +165,8 @@
       allEntries.forEach((entry, idx) => {
         const formatField = val => val && val.trim() !== '' ? val : '-';
         const row = document.createElement('tr');
-        row.innerHTML = `
-          <td>${formatField(entry.driver)}</td>
+        row.innerHTML =
+          `<td>${formatField(entry.driver)}</td>
           <td>${formatField(entry.plate)}</td>
           <td>${formatField(entry.startingPoint)}</td>
           <td>${formatField(entry.destination)}</td>
@@ -330,8 +176,7 @@
           <td>${formatField(entry.stoppingPlace)}</td>
           <td>${formatField(entry.unauthorised)}</td>
           <td>${formatField(entry.gpsProblem)}</td>
-          <td>${formatField(entry.techProblem)}</td>
-        `;
+          <td>${formatField(entry.techProblem)}</td>`;
         row.addEventListener('click', function(e) {
           if (lastSelectedRow) lastSelectedRow.classList.remove('selected');
           row.classList.add('selected');
@@ -344,76 +189,73 @@
       });
     }
 
-function exportPDF() {
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF({
-    orientation: "landscape", // Gives more horizontal space
-    unit: "mm",
-    format: "a4"
-  });
+    function exportPDF() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({
+        orientation: "landscape",
+        unit: "mm",
+        format: "a4"
+      });
 
-  doc.setFontSize(20);
-  doc.text("Bilos GPS & Technical Events", 14, 18);
-  doc.setFontSize(11);
+      doc.setFontSize(20);
+      doc.text("Bilos GPS & Technical Events", 14, 18);
+      doc.setFontSize(11);
 
-  if (!allEntries.length) {
-    doc.text("No data submitted yet.", 14, 30);
-  } else {
-    const head = [[
-      "Driver Name",
-      "Plate Number",
-      "Starting Point",
-      "Destination",
-      "Date",
-      "Stopping Time",
-      "Stopping Place",
-      "Moved Time",
-      "Moved Unauthorised Place",
-      "Other GPS Problem",
-      "Technical Problem"
-    ]];
+      if (!allEntries.length) {
+        doc.text("No data submitted yet.", 14, 30);
+      } else {
+        const head = [[
+          "Driver Name",
+          "Plate Number",
+          "Starting Point",
+          "Destination",
+          "Date",
+          "Moved Time",
+          "Stopping Time",
+          "Stopping Place",
+          "Moved Unauthorised Place",
+          "Other GPS Problem",
+          "Technical Problem"
+        ]];
 
-    const body = allEntries.map(entry => [
-      entry.driver || "-",
-      entry.plate || "-",
-      entry.startingPoint || "-",
-      entry.destination || "-",
-      entry.date || "-",
-      entry.stoppingTime || "-",
-      entry.stoppingPlace || "-",
-      entry.movedTime || "-", // assuming this is part of your entry
-      entry.unauthorised || "-",
-      entry.gpsProblem || "-",
-      entry.techProblem || "-"
-    ]);
+        const body = allEntries.map(entry => [
+          entry.driver || "-",
+          entry.plate || "-",
+          entry.startingPoint || "-",
+          entry.destination || "-",
+          entry.date || "-",
+          entry.movedTime || "-",
+          entry.stoppingTime || "-",
+          entry.stoppingPlace || "-",
+          entry.unauthorised || "-",
+          entry.gpsProblem || "-",
+          entry.techProblem || "-"
+        ]);
 
-    doc.autoTable({
-      startY: 30,
-      head: head,
-      body: body,
-      styles: {
-        fontSize: 9,
-        cellWidth: 'wrap',      // wrap long text
-        overflow: 'linebreak'   // prevent text cutoff
-      },
-      columnStyles: {
-        8: { cellWidth: 40 },   // "Moved Unauthorised Place"
-        10: { cellWidth: 40 }   // "Technical Problem"
-      },
-      headStyles: {
-        fillColor: [35, 102, 209],
-        textColor: 255,
-        fontSize: 9
-      },
-      margin: { left: 14, right: 14 }
-    });
-  }
+        doc.autoTable({
+          startY: 30,
+          head: head,
+          body: body,
+          styles: {
+            fontSize: 9,
+            cellWidth: 'wrap',
+            overflow: 'linebreak'
+          },
+          columnStyles: {
+            8: { cellWidth: 40 },
+            10: { cellWidth: 40 }
+          },
+          headStyles: {
+            fillColor: [35, 102, 209],
+            textColor: 255,
+            fontSize: 9
+          },
+          margin: { left: 14, right: 14 }
+        });
+      }
 
-  doc.save('gps_information.pdf');
-}
-
-
- 
+      doc.save('gps_information.pdf');
+    }
 
     function editSelectedRow() {
       if (lastSelectedRowIndex == null || lastSelectedId == null) {
@@ -449,7 +291,27 @@ function exportPDF() {
       });
     }
 
-    // --- Other logic unchanged (seeMore, clearData, subscribeToEntries, etc) ---
+    function deleteSelectedRow() {
+      if (lastSelectedRowIndex == null || lastSelectedId == null) {
+        alert("Please select a row to delete.");
+        return;
+      }
+      if (!confirm("Are you sure you want to delete this entry?")) return;
+      db.collection("gpsEntries").doc(lastSelectedId).delete().then(() => {
+        lastSelectedRow = null;
+        lastSelectedRowIndex = null;
+        lastSelectedId = null;
+        document.getElementById('menuPopup').classList.remove('active');
+        alert("Entry deleted.");
+      });
+    }
+
+    function clearData() {
+      if (!confirm("Are you sure you want to delete ALL data? This cannot be undone.")) return;
+      Promise.all(allEntries.map(entry => db.collection("gpsEntries").doc(entry.id).delete()))
+        .then(() => alert("All data cleared."));
+    }
+
     function subscribeToEntries() {
       showLoading();
       hideError();
@@ -488,7 +350,8 @@ function exportPDF() {
       }
     }
   </script>
-  <!-- Loading/Error messages and menu unchanged... -->
+</head>
+<body>
   <div id="loadingMsg" style="text-align:center; color:#444; margin-top:12px; display:none;">Loading data, please wait...</div>
   <div id="errorMsg" style="text-align:center; color:red; margin-top:12px; display:none;"></div>
   <button class="menu-btn" id="moreMenuBtn" title="More options" aria-label="More options">
@@ -538,4 +401,4 @@ function exportPDF() {
   </div>
   <div id="mapPopupOverlay" style="display:none"></div>
 </body>
-</html>  
+</html>
